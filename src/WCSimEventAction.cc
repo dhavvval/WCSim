@@ -1622,8 +1622,10 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
     wcsimrootevent->SetNumTubesHit(WCDC_hits->entries());
     std::vector<float> truetime, smeartime;
     std::vector<int>   primaryParentID;
+    std::vector<int>   directParentID;
     double hit_time_smear, hit_time_true;
     int hit_parentid;
+    int hit_directparentid;
     //loop over the DigitsCollection
     for(int idigi = 0; idigi < WCDC_hits->entries(); idigi++) {
       int digi_tubeid = (*WCDC_hits)[idigi]->GetTubeID();

@@ -52,6 +52,9 @@ private:
   Float_t fTankExitPos[3];
   Double_t fTankExitE;
   Float_t fTankExitMom[3];
+  Int_t fPrimaryParentID;
+  Int_t fDirectParentID;
+
 
 public:
   WCSimRootTrack() {}
@@ -104,6 +107,8 @@ public:
   Float_t   GetTankExitPoint(Int_t i=0){return (i<3) ? fTankExitPos[i] : 0;}
   Double_t  GetTankExitE(){return fTankExitE;}
   Float_t   GetTankExitMom(Int_t i=0){return (i<3) ? fTankExitMom[i] : 0;}
+  Int_t     GetParentID() { return fPrimaryParentID;}
+  Int_t     GetDirectParentID() { return fDirectParentID;}
   
   void Clear(Option_t *option ="");
 
@@ -139,15 +144,18 @@ private:
   // See jhfNtuple.h for the meaning of these data members:
   Float_t fTruetime;
   Int_t   fPrimaryParentID;
+  Int_t  fDirectParentID;
 
 public:
   WCSimRootCherenkovHitTime() {}
   WCSimRootCherenkovHitTime(Float_t truetime,
-			    Int_t   primaryParentID);
+			    Int_t   primaryParentID,
+			    Int_t   directParentID);
   virtual ~WCSimRootCherenkovHitTime() { }
 
   Float_t   GetTruetime() { return fTruetime;}
   Int_t     GetParentID() { return fPrimaryParentID;}
+  Int_t     GetDirectParentID() { return fDirectParentID;}
 
   ClassDef(WCSimRootCherenkovHitTime,1)  
 };
@@ -498,7 +506,8 @@ public:
 
   WCSimRootCherenkovHit   *AddCherenkovHit(Int_t                tubeID,
 					  std::vector<Float_t> truetime,
-					  std::vector<Int_t>   primParID);
+					  std::vector<Int_t>   primParID,
+					  std::vector<Int_t>   directParID);
   TClonesArray        *GetCherenkovHits() const {return fCherenkovHits;}
   TClonesArray        *GetCherenkovHitTimes() const {return fCherenkovHitTimes;}
 

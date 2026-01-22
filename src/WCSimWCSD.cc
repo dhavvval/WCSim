@@ -242,6 +242,9 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
       // =============================
       G4double hitTime           = preStepPoint->GetGlobalTime();
       G4double energyDeposition  = aStep->GetTotalEnergyDeposit();
+      g4int directParentID = aStep->GetTrack()->GetParentID();
+
+
       
       // Get information about the sensor
       // ================================
@@ -310,6 +313,7 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
         PMTHitMap[replicaNumber] = hitsCollection->insert( newHit );
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPe(hitTime);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddParentID(primParentID);
+        (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddDirectParentID(directParentID);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddHitPos(worldPosition);
         if(not isPMT){
           (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddStripPosition(localPosition);
@@ -317,6 +321,7 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
       } else {
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPe(hitTime);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddParentID(primParentID);
+        (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddDirectParentID(directParentID);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddHitPos(worldPosition);
         if(not isPMT){
           (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddStripPosition(localPosition);

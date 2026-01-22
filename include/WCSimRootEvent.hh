@@ -80,7 +80,9 @@ public:
 		  std::string eProcess,
 		  Float_t tankexitp[3],
 		  Double_t tankexite,
-		  Float_t tankexitmom[3]);
+		  Float_t tankexitmom[3]),
+      Int_t primaryParentID,
+      Int_t directParentID;
   
   virtual ~WCSimRootTrack() { }
 

@@ -80,9 +80,9 @@ public:
 		  std::string eProcess,
 		  Float_t tankexitp[3],
 		  Double_t tankexite,
-		  Float_t tankexitmom[3]),
+		  Float_t tankexitmom[3],
       Int_t primaryParentID,
-      Int_t directParentID;
+      Int_t directParentID);
   
   virtual ~WCSimRootTrack() { }
 
@@ -114,7 +114,7 @@ public:
   
   void Clear(Option_t *option ="");
 
-  ClassDef(WCSimRootTrack,1)  
+  ClassDef(WCSimRootTrack,2)  
 };
 
 
@@ -159,7 +159,7 @@ public:
   Int_t     GetParentID() { return fPrimaryParentID;}
   Int_t     GetDirectParentID() { return fDirectParentID;}
 
-  ClassDef(WCSimRootCherenkovHitTime,1)  
+  ClassDef(WCSimRootCherenkovHitTime,2)  
 };
 
 
@@ -500,7 +500,9 @@ public:
 				   std::string eProcess,
 				   Float_t TankExitPoint[3],
 				   Double_t TankExitE,
-				   Float_t TankExitMom[3]);
+				   Float_t TankExitMom[3],
+				   Int_t primaryParentID,
+				   Int_t directParentID);
 
   TClonesArray        *GetTracks() const {return fTracks;}
   

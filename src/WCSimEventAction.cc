@@ -1361,6 +1361,7 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
       }
       
       // Add the track to the TClonesArray
+      int primaryPar
       wcsimrootevent->AddTrack(jhfNtuple.ipnu[k],         // particle PDG
                                jhfNtuple.flag[k],         // neutrino probe, target or other
                                jhfNtuple.m[k],            // particle rest mass
@@ -1383,7 +1384,9 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
                                "NuIntx",                  // end process name
                                pdir2,                     // tank exit position (N/A)
                                0,                         // tank exit energy (relativistic)
-                               pdir2);                    // tank exit 3-momentum (N/A)
+                               pdir2,                     // tank exit 3-momentum (N/A)
+                               -1,                        // primaryParentID (not available in jhfNtuple)
+                               -1);                       // directParentID (not available in jhfNtuple)
     }
     
     // the rest of the tracks come from WCSimTrajectory
@@ -1561,7 +1564,9 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
                                    endProcess,    // end process name
                                    tankexit,      // tank exit position
                                    tankExitE,     // tank exit energy (relativistic)
-                                   tankexitp);    // tank exit 3-momentum
+                                   tankexitp,     // tank exit 3-momentum
+                                   -1,                      // primaryParentID (not available in trajectories)
+                                   trj->GetParentID());     // directParentID
         }
         
         
@@ -1656,10 +1661,12 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
 #endif
       wcsimrootevent->AddCherenkovHit(digi_tubeid,
 				      truetime,
-				      primaryParentID);
+				      primaryParentID,
+              directParentID);
       smeartime.clear();
       truetime.clear();
       primaryParentID.clear();
+      directParentID.clear();
     }//idigi
   }//if(WCDC_hits)
 #endif //_SAVE_RAW_HITS

@@ -335,7 +335,7 @@ void WCSimWCAddDarkNoise::AddDarkNoiseBeforeDigi(WCSimWCDigitsCollection* WCHCPM
 	    //G4cout<<"2 "<<(*WCHCPMT)[0]->GetLogicalVolume()->GetName()<<"\n";
 	    ahit->SetTrackID(-1);
 	    ahit->SetParentID(PMTindex[noise_pmt], -1); // Set the position and rotation of the pmt
-      ahit->SetDirectParentID(-1);	    
+	    ahit->SetDirectParentID(PMTindex[noise_pmt], -1);
 	    Float_t hit_pos[3];
 	    Float_t hit_rot[3];
 	    // TODO: need to change the format of hit_pos to G4ThreeVector

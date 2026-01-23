@@ -1361,7 +1361,6 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
       }
       
       // Add the track to the TClonesArray
-      int primaryPar
       wcsimrootevent->AddTrack(jhfNtuple.ipnu[k],         // particle PDG
                                jhfNtuple.flag[k],         // neutrino probe, target or other
                                jhfNtuple.m[k],            // particle rest mass

@@ -242,7 +242,7 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
       // =============================
       G4double hitTime           = preStepPoint->GetGlobalTime();
       G4double energyDeposition  = aStep->GetTotalEnergyDeposit();
-      g4int directParentID = aStep->GetTrack()->GetParentID();
+      G4int directParentID = aStep->GetTrack()->GetParentID();
 
 
       

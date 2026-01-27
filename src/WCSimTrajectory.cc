@@ -35,7 +35,7 @@ WCSimTrajectory::WCSimTrajectory(const G4Track* aTrack)
   if(fpParticleDefinition==G4OpticalPhoton::OpticalPhotonDefinition()){PDGEncoding=100;}
   fTrackID = aTrack->GetTrackID();
   fParentID = aTrack->GetParentID();
-  fDirectParentID = aTrack->GetDirectParentID();
+  fDirectParentID = aTrack->GetParentID();  // DirectParentID equals ParentID at track creation
   initialMomentum = aTrack->GetMomentum();
   finalMomentum = aTrack->GetMomentum();
   globalTimeEnd = aTrack->GetGlobalTime();

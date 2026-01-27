@@ -327,7 +327,7 @@ void WCSimWCLAPPD::MakePeCorrection_lappd(WCSimWCHitsCollection* WCHClappd)
 	  assert(false);
 	}
 	peSmeared = rn1pe(); 
-	int parent_id = (*WCHClappd)[i]->GetParentID(ip);
+	int parent_id = (*WCHClappd)[i]->GetPrimaryParentID(ip);
 	//G4cout<<"------- ip= "<<ip<<" time_true= "<<time_true<<" parent_id= "<<parent_id<<G4endl;
 
 	//apply time smearing
@@ -400,7 +400,7 @@ void WCSimWCLAPPD::MakePeCorrection_lappd(WCSimWCHitsCollection* WCHClappd)
 	  Digi->SetPe(ip,peSmeared);
 	  Digi->SetTime(ip,time_LAPPD);
 	  Digi->SetPreSmearTime(ip,time_true);
-	  Digi->SetParentID(ip,parent_id);
+	  Digi->SetPrimaryParentID(ip,parent_id);
           Digi->SetStripNo(ip,sno);
           Digi->SetNeighStripNo(ip,stripno_peak);
           Digi->SetNeighStripTime(ip,stripno_time);
@@ -415,7 +415,7 @@ void WCSimWCLAPPD::MakePeCorrection_lappd(WCSimWCHitsCollection* WCHClappd)
 	  (*DigitsCollection)[DigiHitMapLAPPD[lappd]-1]->SetPe(ip,peSmeared);
 	  (*DigitsCollection)[DigiHitMapLAPPD[lappd]-1]->SetTime(ip,time_LAPPD);
 	  (*DigitsCollection)[DigiHitMapLAPPD[lappd]-1]->SetPreSmearTime(ip,time_true);
-	  (*DigitsCollection)[DigiHitMapLAPPD[lappd]-1]->SetParentID(ip,parent_id);
+	  (*DigitsCollection)[DigiHitMapLAPPD[lappd]-1]->SetPrimaryParentID(ip,parent_id);
  	  (*DigitsCollection)[DigiHitMapLAPPD[lappd]-1]->SetStripNo(ip,sno);
           (*DigitsCollection)[DigiHitMapLAPPD[lappd]-1]->SetNeighStripNo(ip,stripno_peak);
           (*DigitsCollection)[DigiHitMapLAPPD[lappd]-1]->SetNeighStripTime(ip,stripno_time);

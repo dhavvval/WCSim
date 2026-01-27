@@ -146,6 +146,7 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
         WCSimTrackInformation* infoSec = new WCSimTrackInformation(anInfo);
         infoSec->WillBeSaved(false);
         infoSec->SetParentPdg(thispdg);
+        infoSec->SetPrimaryParentID(anInfo->GetPrimaryParentID()); // pass down primary parent ID, Do I need to set DirectParentID too? (DJA)
         (*secondaries)[i]->SetUserInformation(infoSec);
       }
   }
@@ -163,6 +164,7 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
     currentTrajectory->SetStoppingTime(currentTime);
     currentTrajectory->SetStoppingMomentum(currentMomentum);
     currentTrajectory->SetParentPdg(anInfo->GetParentPdg());
+    currentTrajectory->SetPrimaryParentID(anInfo->GetPrimaryParentID());
     currentTrajectory->SetSaveFlag(anInfo->isSaved());
   }
   

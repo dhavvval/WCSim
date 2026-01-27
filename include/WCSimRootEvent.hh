@@ -511,7 +511,6 @@ public:
 					  std::vector<Float_t> truetime,
             std::vector<Int_t>   primParID,
 					  std::vector<Int_t>   directParID);
-  TClonesArray        *GetCherenkovHits() const {return fCher
   TClonesArray        *GetCherenkovHits() const {return fCherenkovHits;}
   TClonesArray        *GetCherenkovHitTimes() const {return fCherenkovHitTimes;}
 

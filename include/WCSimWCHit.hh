@@ -68,7 +68,8 @@ class WCSimWCHit : public G4VHit
   void SetLogicalVolume(G4LogicalVolume* logV)      { pLogV = logV;}
   void AddParentID     (G4int primParentID)
   { primaryParentID.push_back(primParentID); }
-
+  void AddDirectParentID(G4int directParID)
+  { directParentID.push_back(directParID); }
   // This is temporarily used for the drawing scale
   static void SetMaxPe(G4int number = 0)  {maxPe   = number;};
 
@@ -94,6 +95,7 @@ class WCSimWCHit : public G4VHit
   G4int         GetTotalPe()    { return totalPe;};
   G4float       GetTime(int i)  { return time.at(i);};
   G4int         GetParentID(int i) { return primaryParentID.at(i);};
+  G4int         GetDirectParentID(int i) { return directParentID.at(i);};
   
   G4LogicalVolume* GetLogicalVolume() {return pLogV;};
 
@@ -169,6 +171,7 @@ class WCSimWCHit : public G4VHit
   std::vector<G4float>  time;
   std::vector<G4int>    primaryParentID;
   G4int                 totalPeInGate;
+  std::vector<G4int>    directParentID;
 };
 
 typedef G4THitsCollection<WCSimWCHit> WCSimWCHitsCollection;

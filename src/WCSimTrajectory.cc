@@ -18,7 +18,7 @@
 G4Allocator<WCSimTrajectory> myTrajectoryAllocator;
 
 WCSimTrajectory::WCSimTrajectory()
-  :  positionRecord(0), fTrackID(0), fParentID(0),  fDirectParentID(0), fParentPdg(0),
+  :  positionRecord(0), fTrackID(0), fParentID(0), fParentPdg(0),
      PDGEncoding( 0 ), PDGCharge(0.0), ParticleName(""),
      initialMomentum( G4ThreeVector() ), finalMomentum( G4ThreeVector() ),
      SaveIt(false),creatorProcess(""), 
@@ -35,7 +35,7 @@ WCSimTrajectory::WCSimTrajectory(const G4Track* aTrack)
   if(fpParticleDefinition==G4OpticalPhoton::OpticalPhotonDefinition()){PDGEncoding=100;}
   fTrackID = aTrack->GetTrackID();
   fParentID = aTrack->GetParentID();
-  fDirectParentID = aTrack->GetParentID();  // DirectParentID equals ParentID at track creation
+  //fDirectParentID = aTrack->GetParentID();  // DirectParentID equals ParentID at track creation
   initialMomentum = aTrack->GetMomentum();
   finalMomentum = aTrack->GetMomentum();
   globalTimeEnd = aTrack->GetGlobalTime();
@@ -74,7 +74,7 @@ WCSimTrajectory::WCSimTrajectory(WCSimTrajectory & right):G4VTrajectory()
   PDGEncoding = right.PDGEncoding;
   fTrackID = right.fTrackID;
   fParentID = right.fParentID;
-  fDirectParentID = right.fDirectParentID;
+ // fDirectParentID = right.fDirectParentID;
   fParentPdg = right.fParentPdg;
   initialMomentum = right.initialMomentum;
   finalMomentum = right.finalMomentum;

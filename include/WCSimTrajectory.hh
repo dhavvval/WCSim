@@ -45,8 +45,8 @@ public: // with description
    { return fTrackID; }
    inline G4int GetParentID() const
    { return fParentID; }
-   //inline G4int GetDirectParentID() const
-   //{return fDirectParentID; }
+   inline G4int GetPrimaryParentID() const
+   { return fPrimaryParentID; }
    inline G4int GetParentPdg() const
    { return fParentPdg; }
    inline G4String GetParticleName() const
@@ -101,6 +101,8 @@ public: // with description
    { momentumOnTankExit = currentMomentum; }
    inline void SetTankExitPoint(G4ThreeVector& currentPosition)
    { tankExitPoint = currentPosition; }
+      inline void SetPrimaryParentID(G4int id)
+   { fPrimaryParentID = id; }
 
 
 // Other member functions
@@ -124,7 +126,7 @@ public: // with description
   TrajectoryPointContainer* positionRecord;
   G4int                     fTrackID;
   G4int                     fParentID;
-  //G4int                     fDirectParentID;
+  G4int                     fPrimaryParentID;
   G4int                     fParentPdg;
   G4int                     PDGEncoding;
   G4double                  PDGCharge;

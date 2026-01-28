@@ -1564,8 +1564,8 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
                                    tankexit,      // tank exit position
                                    tankExitE,     // tank exit energy (relativistic)
                                    tankexitp,    // tank exit 3-momentum
-                                   -1,                      // primaryParentID (not available in trajectories)
-                                   trj->GetParentID());
+                                   trj->GetPrimaryParentID(),  // primaryParentID
+                                   trj->GetParentID());        // directParentID
         }
         
         

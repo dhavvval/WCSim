@@ -108,7 +108,7 @@ public:
   Float_t   GetTankExitPoint(Int_t i=0){return (i<3) ? fTankExitPos[i] : 0;}
   Double_t  GetTankExitE(){return fTankExitE;}
   Float_t   GetTankExitMom(Int_t i=0){return (i<3) ? fTankExitMom[i] : 0;}
-  Int_t     GetParentID() { return fPrimaryParentID;}
+  Int_t     GetPrimaryParentID() { return fPrimaryParentID;}
   Int_t     GetDirectParentID() { return fDirectParentID;}
   
   void Clear(Option_t *option ="");
@@ -155,7 +155,7 @@ public:
   virtual ~WCSimRootCherenkovHitTime() { }
 
   Float_t   GetTruetime() { return fTruetime;}
-  Int_t     GetParentID() { return fPrimaryParentID;}
+  Int_t     GetPrimaryParentID() { return fPrimaryParentID;}
   Int_t     GetDirectParentID() { return fDirectParentID;}
 
   ClassDef(WCSimRootCherenkovHitTime,2)  

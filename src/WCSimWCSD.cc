@@ -310,7 +310,7 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
         // Set the hitMap value to the collection hit number
         PMTHitMap[replicaNumber] = hitsCollection->insert( newHit );
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPe(hitTime);
-        (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddParentID(primParentID);
+        (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPrimaryParentID(primParentID);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddDirectParentID(directParentID);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddHitPos(worldPosition);
         if(not isPMT){
@@ -318,7 +318,7 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
         }
       } else {
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPe(hitTime);
-        (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddParentID(primParentID);
+        (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPrimaryParentID(primParentID);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddDirectParentID(directParentID);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddHitPos(worldPosition);
         if(not isPMT){

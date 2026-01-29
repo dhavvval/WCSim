@@ -622,7 +622,7 @@ void WCSimEventAction::EndOfEventAction(const G4Event* evt)
         for(G4int id = 0; id < (*WCDC_hitslappd)[idigi]->GetTotalPe(); id++){
           id0++;
           hit_time_true  = (*WCDC_hitslappd)[idigi]->GetPreSmearTime(id);
-          hit_parentid = (*WCDC_hitslappd)[idigi]->GetParentID(id);
+          hit_parentid = (*WCDC_hitslappd)[idigi]->GetPrimaryParentID(id);
           //G4cout<<"0___LAPPD idigi= "<<idigi<<" id= "<<id<<"/"<<(*WCDC_hitslappd)[idigi]->GetTotalPe()<<G4endl;
           //G4cout<<"id0= "<<id0<<" hit_time_true= "<<hit_time_true<<" hit_parentid= "<<hit_parentid<<G4endl;
           lappdhit_truetime2.push_back(hit_time_true);
@@ -1635,7 +1635,7 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
       int digi_tubeid = (*WCDC_hits)[idigi]->GetTubeID();
       for(G4int id = 0; id < (*WCDC_hits)[idigi]->GetTotalPe(); id++){
 	hit_time_true  = (*WCDC_hits)[idigi]->GetPreSmearTime(id);
-	hit_parentid = (*WCDC_hits)[idigi]->GetParentID(id);
+	hit_parentid = (*WCDC_hits)[idigi]->GetPrimaryParentID(id);
   hit_directparentid = (*WCDC_hits)[idigi]->GetDirectParentID(id);
 	truetime.push_back(hit_time_true);
 	primaryParentID.push_back(hit_parentid);

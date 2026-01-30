@@ -244,6 +244,16 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
       G4double energyDeposition  = aStep->GetTotalEnergyDeposit();
       G4int directParentID = aStep->GetTrack()->GetParentID();  //Is it really needed to get direct parent ID from TrackInformation? (DJA)
       
+      // DEBUG: Print parent IDs for first few hits
+      static int hitDebugCount = 0;
+      if(hitDebugCount < 10) {
+        G4cout << "DEBUG WCSimWCSD: Hit #" << hitDebugCount 
+               << " PrimaryParentID=" << primParentID 
+               << " DirectParentID=" << directParentID 
+               << " TrackID=" << aStep->GetTrack()->GetTrackID() << G4endl;
+        hitDebugCount++;
+      }
+      
       // Get information about the sensor
       // ================================
       // Make the sensor tubeTag based on the replica numbers

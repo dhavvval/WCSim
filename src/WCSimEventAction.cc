@@ -1566,6 +1566,17 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
                                    tankexitp,    // tank exit 3-momentum
                                    trj->GetPrimaryParentID(),  // primaryParentID
                                    trj->GetParentID());        // directParentID
+        
+        // DEBUG: Print parent IDs being written to ROOT
+        static int rootDebugCount = 0;
+        if(rootDebugCount < 10) {
+          G4cout << "DEBUG WCSimEventAction: Writing Track #" << rootDebugCount
+                 << " TrackID=" << id
+                 << " PrimaryParentID=" << trj->GetPrimaryParentID()
+                 << " DirectParentID=" << trj->GetParentID()
+                 << " PDG=" << ipnu << G4endl;
+          rootDebugCount++;
+        }
         }
         
         

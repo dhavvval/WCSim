@@ -56,7 +56,11 @@ private:
   Int_t fDirectParentID;
 
 public:
-  WCSimRootTrack() {}
+  WCSimRootTrack() : fIpnu(0), fFlag(0), fM(0), fP(0), fE(0), fP2(0), fE2(0), 
+    fStartvol(0), fStopvol(0), fParenttype(0), fTime(0), fTime2(0), fId(0),
+    fTankExitE(0), fPrimaryParentID(-1), fDirectParentID(-1) {
+      for(int i=0; i<3; i++) { fDir[i]=0; fPdir[i]=0; fPdir2[i]=0; fStop[i]=0; fStart[i]=0; fTankExitPos[i]=0; fTankExitMom[i]=0; }
+    }
   WCSimRootTrack(Int_t ipnu, 
 		  Int_t flag, 
 		  Float_t m, 
@@ -148,7 +152,7 @@ private:
   Int_t  fDirectParentID;
 
 public:
-  WCSimRootCherenkovHitTime() {}
+  WCSimRootCherenkovHitTime() : fTruetime(0), fPrimaryParentID(-1), fDirectParentID(-1) {}
   WCSimRootCherenkovHitTime(Float_t truetime,
 			    Int_t   primaryParentID,
 			    Int_t   directParentID);

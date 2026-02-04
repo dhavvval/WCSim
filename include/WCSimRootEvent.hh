@@ -117,7 +117,7 @@ public:
   
   void Clear(Option_t *option ="");
 
-  ClassDef(WCSimRootTrack,3)  
+  ClassDef(WCSimRootTrack,6)  
 };
 
 
@@ -162,7 +162,7 @@ public:
   Int_t     GetPrimaryParentID() { return fPrimaryParentID;}
   Int_t     GetDirectParentID() { return fDirectParentID;}
 
-  ClassDef(WCSimRootCherenkovHitTime,3)  
+  ClassDef(WCSimRootCherenkovHitTime,6)  
 };
 
 

@@ -613,6 +613,7 @@ void WCSimEventAction::EndOfEventAction(const G4Event* evt)
      // std::vector<int>   primaryParentID2;
      double hit_time_smear, hit_time_true;
      int hit_parentid; G4int id0=0;
+     int hit_directparentid;
      //loop over the DigitsCollection
      for(int idigi = 0; idigi < WCDC_hitslappd->entries(); idigi++) {
         int digi_tubeid = (*WCDC_hitslappd)[idigi]->GetTubeID();
@@ -623,10 +624,13 @@ void WCSimEventAction::EndOfEventAction(const G4Event* evt)
           id0++;
           hit_time_true  = (*WCDC_hitslappd)[idigi]->GetPreSmearTime(id);
           hit_parentid = (*WCDC_hitslappd)[idigi]->GetPrimaryParentID(id);
+          hit_directparentid = (*WCDC_hitslappd)[idigi]->GetDirectParentID(id);
+
           //G4cout<<"0___LAPPD idigi= "<<idigi<<" id= "<<id<<"/"<<(*WCDC_hitslappd)[idigi]->GetTotalPe()<<G4endl;
           //G4cout<<"id0= "<<id0<<" hit_time_true= "<<hit_time_true<<" hit_parentid= "<<hit_parentid<<G4endl;
           lappdhit_truetime2.push_back(hit_time_true);
           lappdhit_primaryParentID2.push_back(hit_parentid);
+          lappdhit_directParentID2.push_back(hit_directparentid);
           ////---strip number and digitised hits-----
           int stripno = (*WCDC_hitslappd)[idigi]->GetStripNo(id);
           lappdhit_stripnum.push_back(stripno);
@@ -670,11 +674,13 @@ void WCSimEventAction::EndOfEventAction(const G4Event* evt)
         if(digi_tubeid < NPMTS_VERBOSE) {
           G4cout << "Adding " << lappdhit_truetime2.size()
                  << " Cherenkov hits in tube " << digi_tubeid
-                 << " with truetime:smeartime:primaryparentID";
+                 << " with truetime:smeartime:primaryparentID:directparentID"
+                 ;
           for(G4int id = 0; id < lappdhit_truetime2.size(); id++) {
              G4cout << " " << lappdhit_truetime2[id]
                     << ":" << lappdhit_smeartime2[id]
-                    << ":" << lappdhit_primaryParentID2[id];
+                    << ":" << lappdhit_primaryParentID2[id]
+                    << ":" << lappdhit_directParentID2[id];
           }//id
          G4cout << G4endl;
         }
@@ -683,6 +689,7 @@ void WCSimEventAction::EndOfEventAction(const G4Event* evt)
         smeartime2.clear();
         truetime2.clear();
         primaryParentID2.clear();
+        directParentID2.clear();
         */
       } //idigi
     }
@@ -702,6 +709,7 @@ void WCSimEventAction::EndOfEventAction(const G4Event* evt)
     lappdhit_smeartime2.clear();
     lappdhit_truetime2.clear();
     lappdhit_primaryParentID2.clear();
+    lappdhit_directParentID2.clear();
     lappdhit_stripnum.clear();
     lappdhit_neighstripnum.clear();
     lappdhit_neighstrippeak.clear();
@@ -1818,6 +1826,7 @@ void WCSimEventAction::CreateNewLAPPDFile(){
   LAPPDtree->Branch("lappdhit_truetime2",&lappdhit_truetime2);
   LAPPDtree->Branch("lappdhit_smeartime2", &lappdhit_smeartime2);
   LAPPDtree->Branch("lappdhit_primaryParentID2",&lappdhit_primaryParentID2);
+  LAPPDtree->Branch("lappdhit_directParentID2",&lappdhit_directParentID2);
   LAPPDtree->Branch("lappdhit_NoOfneighstripsHit", &lappdhit_NoOfneighstripsHit);
   LAPPDtree->Branch("lappdhit_neighstripnum", &lappdhit_neighstripnum);
   LAPPDtree->Branch("lappdhit_neighstrippeak", &lappdhit_neighstrippeak);

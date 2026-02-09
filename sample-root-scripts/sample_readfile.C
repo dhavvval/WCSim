@@ -1,18 +1,7 @@
 #include <iostream>
 #include <TH1F.h>
 #include <stdio.h>     
-#include <stdlib.h>
-#include <TFile.h>
-#include <TTree.h>
-#include <TSystem.h>
-#include <TCanvas.h>
-#include <TClonesArray.h>
-
-// WCSim includes - needed for compiled mode
-#include "WCSimRootEvent.hh"
-#include "WCSimRootGeom.hh"
-#include "WCSimRootOptions.hh"
-
+#include <stdlib.h>    
 // Simple example of reading a generated Root file
 void sample_readfile(char *filename=NULL, bool verbose=false)
 {
@@ -53,10 +42,8 @@ void sample_readfile(char *filename=NULL, bool verbose=false)
   char* wcsimdirenv;
   wcsimdirenv = getenv ("WCSIMDIR");
   if(wcsimdirenv !=  NULL){
-    gSystem->AddIncludePath(Form("-I%s/include", wcsimdirenv));
     gSystem->Load("${WCSIMDIR}/libWCSimRoot.so");
   }else{
-    gSystem->AddIncludePath("-I../include");
     gSystem->Load("../libWCSimRoot.so");
   }
 
@@ -69,7 +56,7 @@ void sample_readfile(char *filename=NULL, bool verbose=false)
   }
   if (!file->IsOpen()){
     cout << "Error, could not open input file: " << filename << endl;
-    return;
+    return -1;
   }
   
   // Get the a pointer to the tree from the file
@@ -181,8 +168,6 @@ void sample_readfile(char *filename=NULL, bool verbose=false)
         printf("  Track initial momentum magnitude [MeV/c]: %f\n", wcsimroottrack->GetP());
         printf("  Track mass [MeV/c2]: %f\n", wcsimroottrack->GetM());
         printf("  Track ID: %d\n", wcsimroottrack->GetId());
-        printf("  PrimaryParentID: %d\n", wcsimroottrack->GetPrimaryParentID());
-        printf("  DirectParentID: %d\n", wcsimroottrack->GetDirectParentID());
       }
 
       
@@ -261,9 +246,6 @@ void sample_readfile(char *filename=NULL, bool verbose=false)
       wcsimrootevent = wcsimrootsuperevent->GetTrigger(index);
       if(verbose) cout << "Sub event number = " << index << "\n";
       
-      // IMPORTANT: Get timeArray for THIS trigger (must be inside the loop!)
-      TClonesArray *timeArrayForTrigger = wcsimrootevent->GetCherenkovHitTimes();
-      
       int ncherenkovdigihits = wcsimrootevent->GetNcherenkovdigihits();
       if(verbose) printf("Number of digits in sub-event: %d\n", ncherenkovdigihits);
      
@@ -280,26 +262,23 @@ void sample_readfile(char *filename=NULL, bool verbose=false)
           dynamic_cast<WCSimRootCherenkovDigiHit*>(element);
         
         if(verbose){
-          if ( i < 20 ){ // Only print first XX=10 tubes
+          if ( i < 10 ){ // Only print first XX=10 tubes
             printf("index, q [pe], time+950 [ns], tubeid: %d %f %f %d \n",i,wcsimrootcherenkovdigihit->GetQ(),
               wcsimrootcherenkovdigihit->GetT(),wcsimrootcherenkovdigihit->GetTubeId());
             
             // for first digit, print the parents of each photon in the digit
-            if(i<10){
+            if(i<3){
               // retrieve the indices of the photons in this digit within the HitTimes array
               std::vector<int> photonids=wcsimrootcherenkovdigihit->GetPhotonIds();
               // loop over photons within the digit
               int photonid=0;
               for(auto thephotonsid : photonids){
                 WCSimRootCherenkovHitTime *thehittimeobject = 
-                  dynamic_cast<WCSimRootCherenkovHitTime*>(timeArrayForTrigger->At(thephotonsid));
+                  dynamic_cast<WCSimRootCherenkovHitTime*>(timeArray->At(thephotonsid));
                 if(thehittimeobject){
                   cout<<"  digit "<<i<<" photon "<<photonid<<": ";
                   cout<<" HitTime index "<<thephotonsid<<", pre-smear time "<<thehittimeobject->GetTruetime()
-                      <<", PrimaryParentID: "<<thehittimeobject->GetPrimaryParentID()
-                      <<", DirectParentID: "<<thehittimeobject->GetDirectParentID()<<";";
-                } else {
-                  cout<<"  digit "<<i<<" photon "<<photonid<<": ERROR - could not retrieve HitTime object at index "<<thephotonsid;
+                      <<", parent TrackID: "<<thehittimeobject->GetParentID()<<";";
                 }
                 cout<<endl;
                 photonid++;

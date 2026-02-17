@@ -410,7 +410,9 @@ void WCSimRootTrigger::Print(int verbosity, int maxprimariestoprint, int maxtrac
       int thephotonsid = truephotonindices.at(photoni);
       WCSimRootCherenkovHitTime *thehittimeobject = 
         (WCSimRootCherenkovHitTime*)firsttrig->GetCherenkovHitTimes()->At(thephotonsid);
-      Int_t thephotonsparenttrackid = thehittimeobject->GetDirectParentID(); //Is it related to the DirectParentID or PrimaryParentID? (DJA)
+        Int_t thephotonsprimaryparenttrackid = thehittimeobject->GetPrimaryParentID();
+        Int_t thephotonsparenttrackid = thehittimeobject->GetDirectParentID(); //Is it related to the DirectParentID or PrimaryParentID? (DJA)
+     
 
      std::cout<<"        digit "<<digiti<<", photon "<<photoni<<" has truetime "<<thehittimeobject->GetTruetime()<<std::endl;
     }

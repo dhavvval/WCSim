@@ -244,6 +244,12 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
       G4double energyDeposition  = aStep->GetTotalEnergyDeposit();
       G4int directParentID = aStep->GetTrack()->GetParentID();
 
+      // Get the direct parent PDG from track information
+      G4int directParentPDG = 0;
+      if (trackinfo) {
+        directParentPDG = trackinfo->GetParentPdg();
+      }
+
 
       
       // Get information about the sensor
@@ -314,6 +320,7 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPe(hitTime);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddParentID(primParentID);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddDirectParentID(directParentID);
+        (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddDirectParentPDG(directParentPDG);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddHitPos(worldPosition);
         if(not isPMT){
           (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddStripPosition(localPosition);
@@ -322,6 +329,7 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPe(hitTime);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddParentID(primParentID);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddDirectParentID(directParentID);
+        (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddDirectParentPDG(directParentPDG);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddHitPos(worldPosition);
         if(not isPMT){
           (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddStripPosition(localPosition);

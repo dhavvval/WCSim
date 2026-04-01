@@ -70,9 +70,9 @@ private:
    */
   std::map<int, std::vector<int> > fDigiComp;
   std::map<int, G4int>    primaryParentID; ///< Primary parent ID of the Hit (do not use for Digits)
-  std::map<int, G4int>    directParentID; ///< Direct parent ID
-  std::map<int, G4int>    directParentPDG; ///< Direct parent PDG code 
-  std::map<int, G4int>    stripno; ///< Strip number
+  std::map<int, G4int>    directParentID; 
+  std::map<int, G4int>    directParentPDG;  
+  std::map<int, G4int>    stripno; 
   std::map<int, std::map<int,double>> neigh_strips_peaks;
   std::map<int, std::map<int,double>> neigh_strips_times;
   std::map<int, std::map<int,double>> neigh_strips_lefttimes;

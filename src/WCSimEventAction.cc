@@ -1656,7 +1656,7 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
       int digi_tubeid = (*WCDC_hits)[idigi]->GetTubeID();
       for(G4int id = 0; id < (*WCDC_hits)[idigi]->GetTotalPe(); id++){
 	hit_time_true  = (*WCDC_hits)[idigi]->GetPreSmearTime(id);
-	hit_parentid = (*WCDC_hits)[idigi]->GetParentID(id);
+	hit_parentid = (*WCDC_hits)[idigi]->GetPrimaryParentID(id);
 	hit_directparentid = (*WCDC_hits)[idigi]->GetDirectParentID(id);
 	hit_directparentpdg = (*WCDC_hits)[idigi]->GetDirectParentPDG(id);
 	truetime.push_back(hit_time_true);

@@ -1377,12 +1377,12 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
                                -1.,                       // stopping mommag not stored in jhfNtuple
                                -1.,                       // stopping E not stored in jhfNtuple
                                jhfNtuple.startvol[k],     // intial volume code (10=tank, 20=veto, 30=mrd)
-                               jhfNtuple.stopvol[k],      // final volume code 
+                               jhfNtuple.stopvol[k],      // final volume code
                                dir,                       // intial direction unit vector
                                pdir,                      // intial momentum vector
                                pdir2,                     // final momentum vector
                                stop,                      // stopping vertex
-                               start,                     // start vertex 
+                               start,                     // start vertex
                                jhfNtuple.parent[k],       // parent PDG
                                jhfNtuple.time[k],         // start time (global)
                                0,                         // stopping time not stored in jhfNtuple
@@ -1392,8 +1392,9 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
                                pdir2,                     // tank exit position (N/A)
                                0,                         // tank exit energy (relativistic)
                                pdir2,                     // tank exit 3-momentum (N/A)
-                              -1,
-                            -1);                    
+                              -1,                         // primaryParentID
+                            -1,                           // directParentID
+                            0);                           // directParentPDG                    
     }
     
     // the rest of the tracks come from WCSimTrajectory
@@ -1557,12 +1558,12 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
                                    mommagend,     // final momentum mag
                                    energyend,     // final relativistic energy
                                    startvol,      // intial volume code (10=tank, 20=veto, 30=mrd)
-                                   stopvol,       // final volume code 
+                                   stopvol,       // final volume code
                                    dir,           // intial direction unit vector
                                    pdir,          // intial momentum vector
                                    pdir2,         // final momentum vector
                                    stop,          // stopping vertex
-                                   start,         // start vertex 
+                                   start,         // start vertex
                                    parentType,    // parent PDG
                                    ttime,         // start time (global)
                                    ttimeend,      // end time (global)
@@ -1573,7 +1574,8 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
                                    tankExitE,     // tank exit energy (relativistic)
                                    tankexitp,    // tank exit 3-momentum
                                    trj->GetPrimaryParentID(),  // primaryParentID
-                                   trj->GetParentID());        // directParentID
+                                   trj->GetParentID(),        // directParentID
+                                   trj->GetParentPdg());      // directParentPDG
         
         // DEBUG: Print parent IDs being written to ROOT
         static int rootDebugCount = 0;

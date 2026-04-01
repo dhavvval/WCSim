@@ -422,22 +422,22 @@ void WCSimRootTrigger::Print(int verbosity, int maxprimariestoprint, int maxtrac
 
 //_____________________________________________________________________________
 
-WCSimRootTrack::WCSimRootTrack(Int_t ipnu, 
-				 Int_t flag, 
-				 Float_t m, 
-				 Float_t p, 
-				 Float_t E, 
-				 Float_t p2, 
-				 Float_t E2, 
-				 Int_t startvol, 
-				 Int_t stopvol, 
-				 Float_t dir[3], 
-				 Float_t pdir[3], 
-				 Float_t pdir2[3], 
-				 Float_t stop[3], 
+WCSimRootTrack::WCSimRootTrack(Int_t ipnu,
+				 Int_t flag,
+				 Float_t m,
+				 Float_t p,
+				 Float_t E,
+				 Float_t p2,
+				 Float_t E2,
+				 Int_t startvol,
+				 Int_t stopvol,
+				 Float_t dir[3],
+				 Float_t pdir[3],
+				 Float_t pdir2[3],
+				 Float_t stop[3],
 				 Float_t start[3],
 				 Int_t parenttype,
-				 Float_t time, 
+				 Float_t time,
 				 Float_t time2,
 				 Int_t id,
 				 std::string sProcess,
@@ -446,7 +446,8 @@ WCSimRootTrack::WCSimRootTrack(Int_t ipnu,
 				 Double_t tankexite,
 				 Float_t tankexitmom[3],
          Int_t primaryParentID,
-         Int_t directParentID)
+         Int_t directParentID,
+         Int_t directParentPDG)
 {
 
   // Create a WCSimRootTrack object and fill it with stuff
@@ -463,10 +464,10 @@ WCSimRootTrack::WCSimRootTrack(Int_t ipnu,
   int i;
   for (i=0;i<3;i++)
   {
-    fDir[i] = dir[i]; 
-    fPdir[i] = pdir[i]; 
-    fPdir2[i] = pdir2[i]; 
-    fStop[i] = stop[i]; 
+    fDir[i] = dir[i];
+    fPdir[i] = pdir[i];
+    fPdir2[i] = pdir2[i];
+    fStop[i] = stop[i];
     fStart[i] = start[i];
     fTankExitPos[i] = tankexitp[i];
     fTankExitMom[i] = tankexitmom[i];
@@ -480,6 +481,7 @@ WCSimRootTrack::WCSimRootTrack(Int_t ipnu,
   fTankExitE = tankexite;
   fPrimaryParentID = primaryParentID;
   fDirectParentID = directParentID;
+  fDirectParentPDG = directParentPDG;
 }
 
 //_____________________________________________________________________________

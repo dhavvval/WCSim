@@ -178,7 +178,7 @@ void sample_readfile(char *filename=NULL, bool verbose=false)
         printf("  Track mass [MeV/c2]: %f\n", wcsimroottrack->GetM());
         printf("  Track ID: %d\n", wcsimroottrack->GetId());
 	printf("PrimaryParentID: %d\n", wcsimroottrack->GetPrimaryParentID());
-        printf("  DirectParentID: %d\n", wcsimroottrack->GetDirectParentID())
+        printf("  DirectParentID: %d\n", wcsimroottrack->GetDirectParentID());
         printf(" DirectParentPDG: %d\n", wcsimroottrack->GetDirectParentPDG());
 }
 

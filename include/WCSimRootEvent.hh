@@ -161,7 +161,7 @@ public:
 			    Int_t   primaryParentID,
 			    Int_t   directParentID,
 			    Int_t   directParentPDG);
-          
+
   virtual ~WCSimRootCherenkovHitTime() { }
 
   Float_t   GetTruetime() { return fTruetime;}
@@ -512,7 +512,8 @@ public:
 				   Double_t TankExitE,
 				   Float_t TankExitMom[3],
 				   Int_t primaryParentID,
-				   Int_t directParentID);
+				   Int_t directParentID,
+          Int_t directParentPDG);
 
   TClonesArray        *GetTracks() const {return fTracks;}
   

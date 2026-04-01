@@ -336,6 +336,7 @@ void WCSimWCAddDarkNoise::AddDarkNoiseBeforeDigi(WCSimWCDigitsCollection* WCHCPM
 	    ahit->SetTrackID(-1);
 	    ahit->SetPrimaryParentID(PMTindex[noise_pmt], -1);
       ahit->SetDirectParentID(PMTindex[noise_pmt], -1);
+      ahit->SetDirectParentPDG(PMTindex[noise_pmt], -1);
 	    // Set the position and rotation of the pmt
 	    Float_t hit_pos[3];
 	    Float_t hit_rot[3];
@@ -375,7 +376,8 @@ void WCSimWCAddDarkNoise::AddDarkNoiseBeforeDigi(WCSimWCDigitsCollection* WCHCPM
 	  (*WCHCPMT)[ list[noise_pmt]-1 ]->SetTime(PMTindex[noise_pmt],current_time);
 	  (*WCHCPMT)[ list[noise_pmt]-1 ]->SetPreSmearTime(PMTindex[noise_pmt],current_time); //presmear==postsmear for dark noise
 	  (*WCHCPMT)[ list[noise_pmt]-1 ]->SetPrimaryParentID(PMTindex[noise_pmt],-1);
-    (*WCHCPMT)[ list[noise_pmt]-1 ]->SetDirectParentID(PMTindex[noise_pmt],-1);	
+    (*WCHCPMT)[ list[noise_pmt]-1 ]->SetDirectParentID(PMTindex[noise_pmt],-1);
+    (*WCHCPMR)[ list[noise_pmt]-1 ]->SetDirectParentPDG(PMTindex[noise_pmt],-1);
 	  PMTindex[noise_pmt]++;
 #ifdef WCSIMWCADDDARKNOISE_VERBOSE
 	  if(noise_pmt < NPMTS_VERBOSE)

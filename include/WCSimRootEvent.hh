@@ -52,7 +52,7 @@ private:
   Float_t fTankExitPos[3];
   Double_t fTankExitE;
   Float_t fTankExitMom[3];
-  Int_t fPrimaryParentID;
+  Int_t fPrimaryParentID;  
   Int_t fDirectParentID;
   Int_t fDirectParentPDG;
 
@@ -62,20 +62,20 @@ public:
     fTankExitE(0), fPrimaryParentID(-1), fDirectParentID(-1), fDirectParentPDG(0) {
       for(int i=0; i<3; i++) { fDir[i]=0; fPdir[i]=0; fPdir2[i]=0; fStop[i]=0; fStart[i]=0; fTankExitPos[i]=0; fTankExitMom[i]=0; }
     }
-  WCSimRootTrack(Int_t ipnu,
-		  Int_t flag,
-		  Float_t m,
-		  Float_t p,
-		  Float_t E,
-		  Float_t endP,
-		  Float_t endE,
-		  Int_t startvol,
-		  Int_t stopvol,
-		  Float_t dir[3],
-		  Float_t pdir[3],
+  WCSimRootTrack(Int_t ipnu, 
+		  Int_t flag, 
+		  Float_t m, 
+		  Float_t p, 
+		  Float_t E, 
+		  Float_t endP, 
+		  Float_t endE, 
+		  Int_t startvol, 
+		  Int_t stopvol, 
+		  Float_t dir[3], 
+		  Float_t pdir[3], 
 		  Float_t pdir2[3],
-		  Float_t stop[3],
-		  Float_t start[3],
+		  Float_t stop[3], 
+		  Float_t start[3], 
 		  Int_t parenttype,
 		  Float_t time,
 		  Float_t endtime,
@@ -156,11 +156,12 @@ private:
   Int_t  fDirectParentPDG;
 
 public:
-  WCSimRootCherenkovHitTime() : fTruetime(0), fPrimaryParentID(-1), fDirectParentID(-1) {}
+  WCSimRootCherenkovHitTime() {}
   WCSimRootCherenkovHitTime(Float_t truetime,
 			    Int_t   primaryParentID,
 			    Int_t   directParentID,
 			    Int_t   directParentPDG);
+          
   virtual ~WCSimRootCherenkovHitTime() { }
 
   Float_t   GetTruetime() { return fTruetime;}

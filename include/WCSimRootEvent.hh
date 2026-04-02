@@ -117,7 +117,7 @@ public:
   
   void Clear(Option_t *option ="");
 
-  ClassDef(WCSimRootTrack,6)  
+  ClassDef(WCSimRootTrack,7)  
 };
 
 

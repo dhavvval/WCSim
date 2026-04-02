@@ -288,7 +288,7 @@ WCSimRootTrack *WCSimRootTrigger::AddTrack(Int_t ipnu,
 					   std::string eProcess,
 					   Float_t tankexitp[3],
 					   Double_t tankexite,
-					   Float_t tankexitmom[3],
+             Float_t tankexitmom[3],
              Int_t primaryParentID,
              Int_t directParentID)
 {
@@ -410,7 +410,10 @@ void WCSimRootTrigger::Print(int verbosity, int maxprimariestoprint, int maxtrac
       int thephotonsid = truephotonindices.at(photoni);
       WCSimRootCherenkovHitTime *thehittimeobject = 
         (WCSimRootCherenkovHitTime*)firsttrig->GetCherenkovHitTimes()->At(thephotonsid);
-      Int_t thephotonsparenttrackid = thehittimeobject->GetParentID();
+        Int_t thephotonsprimaryparenttrackid = thehittimeobject->GetPrimaryParentID();
+        Int_t thephotonsparenttrackid = thehittimeobject->GetDirectParentID(); //Is it related to the DirectParentID or PrimaryParentID? (DJA)
+     
+
      std::cout<<"        digit "<<digiti<<", photon "<<photoni<<" has truetime "<<thehittimeobject->GetTruetime()<<std::endl;
     }
   }
@@ -488,7 +491,7 @@ void WCSimRootTrack::Clear(Option_t* /*o*/){
 
 //_____________________________________________________________________________
 
-WCSimRootCherenkovHit *WCSimRootTrigger::AddCherenkovHit(Int_t tubeID,std::vector<Float_t> truetime,std::vector<Int_t> primParID, std::vector<Int_t> directParentID, std::vector<Int_t> directParentPDG)
+WCSimRootCherenkovHit *WCSimRootTrigger::AddCherenkovHit(Int_t tubeID,std::vector<Float_t> truetime,std::vector<Int_t> primParID, std::vector<Int_t> directParentID)
 {
   // Add a new Cherenkov hit to the list of Cherenkov hits
   TClonesArray &cherenkovhittimes = *fCherenkovHitTimes;
@@ -497,8 +500,8 @@ WCSimRootCherenkovHit *WCSimRootTrigger::AddCherenkovHit(Int_t tubeID,std::vecto
   {
     fCherenkovHitCounter++;
 
-    WCSimRootCherenkovHitTime *cherenkovhittime =
-      new(cherenkovhittimes[fNcherenkovhittimes++]) WCSimRootCherenkovHitTime(truetime[i],primParID[i], directParentID[i], directParentPDG[i]);
+    WCSimRootCherenkovHitTime *cherenkovhittime = 
+      new(cherenkovhittimes[fNcherenkovhittimes++]) WCSimRootCherenkovHitTime(truetime[i],primParID[i], directParentID[i]);
   }
 
   Int_t WC_Index[2];
@@ -526,13 +529,12 @@ WCSimRootCherenkovHit::WCSimRootCherenkovHit(Int_t tubeID,
 }
 
 WCSimRootCherenkovHitTime::WCSimRootCherenkovHitTime(Float_t truetime,
-						     Int_t primParID, Int_t directParID, Int_t directParPDG)
+						     Int_t primParID, Int_t directParID)
 {
   // Create a WCSimRootCherenkovHit object and fill it with stuff
     fTruetime        = truetime;
     fPrimaryParentID = primParID;
     fDirectParentID = directParID;
-    fDirectParentPDG = directParPDG;
 }
 
 //_____________________________________________________________________________

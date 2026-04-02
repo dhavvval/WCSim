@@ -52,12 +52,15 @@ private:
   Float_t fTankExitPos[3];
   Double_t fTankExitE;
   Float_t fTankExitMom[3];
-  Int_t fPrimaryParentID;
+  Int_t fPrimaryParentID;  
   Int_t fDirectParentID;
 
-
 public:
-  WCSimRootTrack() {}
+  WCSimRootTrack() : fIpnu(0), fFlag(0), fM(0), fP(0), fE(0), fP2(0), fE2(0), 
+    fStartvol(0), fStopvol(0), fParenttype(0), fTime(0), fTime2(0), fId(0),
+    fTankExitE(0), fPrimaryParentID(-1), fDirectParentID(-1) {
+      for(int i=0; i<3; i++) { fDir[i]=0; fPdir[i]=0; fPdir2[i]=0; fStop[i]=0; fStart[i]=0; fTankExitPos[i]=0; fTankExitMom[i]=0; }
+    }
   WCSimRootTrack(Int_t ipnu, 
 		  Int_t flag, 
 		  Float_t m, 
@@ -80,7 +83,7 @@ public:
 		  std::string eProcess,
 		  Float_t tankexitp[3],
 		  Double_t tankexite,
-		  Float_t tankexitmom[3],
+      Float_t tankexitmom[3],
       Int_t primaryParentID,
       Int_t directParentID);
   
@@ -109,12 +112,12 @@ public:
   Float_t   GetTankExitPoint(Int_t i=0){return (i<3) ? fTankExitPos[i] : 0;}
   Double_t  GetTankExitE(){return fTankExitE;}
   Float_t   GetTankExitMom(Int_t i=0){return (i<3) ? fTankExitMom[i] : 0;}
-  Int_t     GetParentID() { return fPrimaryParentID;}
+  Int_t     GetPrimaryParentID() { return fPrimaryParentID;}
   Int_t     GetDirectParentID() { return fDirectParentID;}
   
   void Clear(Option_t *option ="");
 
-  ClassDef(WCSimRootTrack,2)  
+  ClassDef(WCSimRootTrack,6)  
 };
 
 
@@ -147,22 +150,20 @@ private:
   Float_t fTruetime;
   Int_t   fPrimaryParentID;
   Int_t  fDirectParentID;
-  Int_t  fDirectParentPDG;
+
 
 public:
-  WCSimRootCherenkovHitTime() {}
+  WCSimRootCherenkovHitTime() : fTruetime(0), fPrimaryParentID(-1), fDirectParentID(-1) {}
   WCSimRootCherenkovHitTime(Float_t truetime,
 			    Int_t   primaryParentID,
-			    Int_t   directParentID,
-			    Int_t   directParentPDG);
+			    Int_t   directParentID);
   virtual ~WCSimRootCherenkovHitTime() { }
 
   Float_t   GetTruetime() { return fTruetime;}
-  Int_t     GetParentID() { return fPrimaryParentID;}
+  Int_t     GetPrimaryParentID() { return fPrimaryParentID;}
   Int_t     GetDirectParentID() { return fDirectParentID;}
-  Int_t     GetDirectParentPDG() { return fDirectParentPDG;}
 
-  ClassDef(WCSimRootCherenkovHitTime,3)
+  ClassDef(WCSimRootCherenkovHitTime,6)  
 };
 
 
@@ -513,9 +514,8 @@ public:
 
   WCSimRootCherenkovHit   *AddCherenkovHit(Int_t                tubeID,
 					  std::vector<Float_t> truetime,
-					  std::vector<Int_t>   primParID,
-					  std::vector<Int_t>   directParID,
-					  std::vector<Int_t>   directParPDG);
+            std::vector<Int_t>   primParID,
+					  std::vector<Int_t>   directParID);
   TClonesArray        *GetCherenkovHits() const {return fCherenkovHits;}
   TClonesArray        *GetCherenkovHitTimes() const {return fCherenkovHitTimes;}
 

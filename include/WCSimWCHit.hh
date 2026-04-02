@@ -171,8 +171,6 @@ class WCSimWCHit : public G4VHit
   G4int                 totalPe;
   std::vector<G4float>  time;
   std::vector<G4int>    primaryParentID;
-  std::vector<G4int>    directParentID;
-  std::vector<G4int>    directParentPDG;
   G4int                 totalPeInGate;
   std::vector<G4int>    directParentID;
 };

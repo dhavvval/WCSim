@@ -148,6 +148,7 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
         infoSec->SetParentPdg(thispdg);
         infoSec->SetHasNeutronAncestor(anInfo->GetHasNeutronAncestor() || aTrack->GetDefinition()->GetPDGEncoding() == 2112); //
         infoSec->SetPrimaryParentID(anInfo->GetPrimaryParentID()); // pass down primary parent ID, Do I need to set DirectParentID too? (DJA)
+        infoSec->SetDirectParentID(aTrack->GetTrackID());  // secondary's direct parent is this track
         (*secondaries)[i]->SetUserInformation(infoSec);
       }
   }
@@ -167,6 +168,7 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
     currentTrajectory->SetParentPdg(anInfo->GetParentPdg());
     currentTrajectory->SetPrimaryParentID(anInfo->GetPrimaryParentID());
     currentTrajectory->SetSaveFlag(anInfo->isSaved());
+    currentTrajectory->SetHasNeutronAncestor(anInfo->GetHasNeutronAncestor());
     
     // DEBUG: Print parent IDs for first few tracks
     static int trackDebugCount = 0;
@@ -175,6 +177,7 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
              << " TrackID=" << aTrack->GetTrackID()
              << " PrimaryParentID=" << anInfo->GetPrimaryParentID()
              << " DirectParentID=" << aTrack->GetParentID()
+             << " HasNeutronAncestor=" << anInfo->GetHasNeutronAncestor()
              << " PDG of this track=" << aTrack->GetDefinition()->GetPDGEncoding() << G4endl;
       trackDebugCount++;
     }

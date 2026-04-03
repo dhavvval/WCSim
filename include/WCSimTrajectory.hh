@@ -83,6 +83,8 @@ public: // with description
   inline G4bool GetSaveFlag() const { return SaveIt; }
   inline void SetSaveFlag(G4bool value) { SaveIt = value; }
   inline void SetParentPdg(G4int value) { fParentPdg = value; }
+  inline G4bool GetHasNeutronAncestor() const { return fHasNeutronAncestor; }
+  inline void SetHasNeutronAncestor(G4bool value) { fHasNeutronAncestor = value; }
 
 // New function we have added
    inline G4ThreeVector GetStoppingPoint() const
@@ -140,6 +142,7 @@ public: // with description
 
   // M Fechner : new saving mechanism
   G4bool SaveIt;
+  G4bool fHasNeutronAncestor;
   G4String creatorProcess;
   G4double                  globalTime;
   G4double                  globalTimeEnd;

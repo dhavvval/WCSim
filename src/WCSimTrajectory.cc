@@ -21,7 +21,7 @@ WCSimTrajectory::WCSimTrajectory()
   :  positionRecord(0), fTrackID(0), fParentID(0), fPrimaryParentID(-1), fParentPdg(0),
      PDGEncoding( 0 ), PDGCharge(0.0), ParticleName(""),
      initialMomentum( G4ThreeVector() ), finalMomentum( G4ThreeVector() ),
-     SaveIt(false),creatorProcess(""), 
+     SaveIt(false), fHasNeutronAncestor(false), creatorProcess(""),
      globalTime(0.0), globalTimeEnd(0.), thisStepsProcess(""),lastStepsProcess(""),
      tankExitPoint(G4ThreeVector()), momentumOnTankExit(G4ThreeVector())
 {;}
@@ -50,6 +50,7 @@ WCSimTrajectory::WCSimTrajectory(const G4Track* aTrack)
   } else {
     SaveIt = false;
   }
+  fHasNeutronAncestor = false;  // Will be set later by WCSimTrackingAction
   globalTime = aTrack->GetGlobalTime();
   if (aTrack->GetCreatorProcess() != 0 )
     {

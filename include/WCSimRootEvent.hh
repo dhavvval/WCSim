@@ -54,11 +54,12 @@ private:
   Float_t fTankExitMom[3];
   Int_t fPrimaryParentID;  
   Int_t fDirectParentID;
+  Bool_t fHasNeutronAncestor;
 
 public:
   WCSimRootTrack() : fIpnu(0), fFlag(0), fM(0), fP(0), fE(0), fP2(0), fE2(0), 
     fStartvol(0), fStopvol(0), fParenttype(0), fTime(0), fTime2(0), fId(0),
-    fTankExitE(0), fPrimaryParentID(-1), fDirectParentID(-1) {
+    fTankExitE(0), fPrimaryParentID(-1), fDirectParentID(-1), fHasNeutronAncestor(false) {
       for(int i=0; i<3; i++) { fDir[i]=0; fPdir[i]=0; fPdir2[i]=0; fStop[i]=0; fStart[i]=0; fTankExitPos[i]=0; fTankExitMom[i]=0; }
     }
   WCSimRootTrack(Int_t ipnu, 
@@ -85,7 +86,8 @@ public:
 		  Double_t tankexite,
       Float_t tankexitmom[3],
       Int_t primaryParentID,
-      Int_t directParentID);
+      Int_t directParentID,
+      Bool_t hasNeutronAncestor);
   
   virtual ~WCSimRootTrack() { }
 
@@ -114,6 +116,7 @@ public:
   Float_t   GetTankExitMom(Int_t i=0){return (i<3) ? fTankExitMom[i] : 0;}
   Int_t     GetPrimaryParentID() { return fPrimaryParentID;}
   Int_t     GetDirectParentID() { return fDirectParentID;}
+  Bool_t    GetHasNeutronAncestor() { return fHasNeutronAncestor;}
   
   void Clear(Option_t *option ="");
 

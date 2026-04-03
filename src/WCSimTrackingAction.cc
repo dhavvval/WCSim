@@ -124,7 +124,7 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
       (ParticleList.count(aTrack->GetDefinition()->GetPDGEncoding())) || 
       (aTrack->GetDefinition()->GetPDGEncoding()==22 && aTrack->GetTotalEnergy() > 1.0*MeV) ||
       (creatorProcess->GetProcessName() == "muMinusCaptureAtRest" && aTrack->GetTotalEnergy() > 1.0*MeV)||
-      ( thispdg==22 && anInfo->GetParentPdg()==111) ){	//---> try this out to get lower energetic gammas
+      ( thispdg==22 && anInfo->GetParentPdg()==111) || anInfo->GetHasNeutronAncestor() ){	//---> try this out to get lower energetic gammas
     anInfo->WillBeSaved(true);
   } else {
     anInfo->WillBeSaved(false);

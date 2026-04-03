@@ -1393,7 +1393,8 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
                                0,                         // tank exit energy (relativistic)
                                pdir2,                     // tank exit 3-momentum (N/A)
                               -1,
-                            -1);                    
+                            -1,
+                            false);  // no neutron ancestry for generated neutrino interaction tracks                    
     }
     
     // the rest of the tracks come from WCSimTrajectory

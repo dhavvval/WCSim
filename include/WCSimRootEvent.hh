@@ -509,7 +509,8 @@ public:
 				   Double_t TankExitE,
 				   Float_t TankExitMom[3],
 				   Int_t primaryParentID,
-				   Int_t directParentID);
+				   Int_t directParentID,
+				   Bool_t hasNeutronAncestor);
 
   TClonesArray        *GetTracks() const {return fTracks;}
   

@@ -1573,8 +1573,7 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
                                    tankExitE,     // tank exit energy (relativistic)
                                    tankexitp,    // tank exit 3-momentum
                                    trj->GetPrimaryParentID(),  // primaryParentID
-                                   trj->GetParentID(),         // directParentID
-                                   trj->GetHasNeutronAncestor());
+                                   trj->GetParentID());        // directParentID
         
         // DEBUG: Print parent IDs being written to ROOT
         static int rootDebugCount = 0;
@@ -1583,7 +1582,6 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
                  << " TrackID=" << id
                  << " PrimaryParentID=" << trj->GetPrimaryParentID()
                  << " DirectParentID=" << trj->GetParentID()
-                 << " HasNeutronAncestor=" << trj->GetHasNeutronAncestor()
                  << " PDG=" << ipnu << G4endl;
           rootDebugCount++;
         }

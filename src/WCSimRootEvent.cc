@@ -290,8 +290,7 @@ WCSimRootTrack *WCSimRootTrigger::AddTrack(Int_t ipnu,
 					   Double_t tankexite,
              Float_t tankexitmom[3],
              Int_t primaryParentID,
-             Int_t directParentID,
-             Bool_t hasNeutronAncestor)
+             Int_t directParentID)
 {
   // Add a new WCSimRootTrack to the list of tracks for this event.
   // To avoid calling the very time consuming operator new for each track,
@@ -325,8 +324,7 @@ WCSimRootTrack *WCSimRootTrigger::AddTrack(Int_t ipnu,
 					   tankexite,
 					   tankexitmom,
              primaryParentID,
-             directParentID,
-             hasNeutronAncestor);
+             directParentID);
 
   return track;
 }
@@ -448,8 +446,7 @@ WCSimRootTrack::WCSimRootTrack(Int_t ipnu,
 				 Double_t tankexite,
 				 Float_t tankexitmom[3],
          Int_t primaryParentID,
-         Int_t directParentID,
-         Bool_t hasNeutronAncestor)
+         Int_t directParentID)
 {
 
   // Create a WCSimRootTrack object and fill it with stuff
@@ -483,7 +480,6 @@ WCSimRootTrack::WCSimRootTrack(Int_t ipnu,
   fTankExitE = tankexite;
   fPrimaryParentID = primaryParentID;
   fDirectParentID = directParentID;
-  fHasNeutronAncestor = hasNeutronAncestor;
 }
 
 //_____________________________________________________________________________

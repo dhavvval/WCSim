@@ -532,7 +532,7 @@ WCSimRootCherenkovHitTime::WCSimRootCherenkovHitTime(Float_t truetime,
 						     Int_t primParID, Int_t directParID)
 {
   // Create a WCSimRootCherenkovHit object and fill it with stuff
-    fTruetime        = truetime; 
+    fTruetime        = truetime;
     fPrimaryParentID = primParID;
     fDirectParentID = directParID;
 }

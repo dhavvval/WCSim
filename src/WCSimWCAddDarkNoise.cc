@@ -377,6 +377,7 @@ void WCSimWCAddDarkNoise::AddDarkNoiseBeforeDigi(WCSimWCDigitsCollection* WCHCPM
 	  (*WCHCPMT)[ list[noise_pmt]-1 ]->SetPrimaryParentID(PMTindex[noise_pmt],-1);
     (*WCHCPMT)[ list[noise_pmt]-1 ]->SetDirectParentID(PMTindex[noise_pmt],-1);	
 	  PMTindex[noise_pmt]++;
+
 #ifdef WCSIMWCADDDARKNOISE_VERBOSE
 	  if(noise_pmt < NPMTS_VERBOSE)
 	    G4cout << "WCSimWCAddDarkNoise::AddDarkNoiseBeforeDigi Added to exisiting digi a dark noise hit at time " << current_time << " to PMT " << noise_pmt << G4endl;

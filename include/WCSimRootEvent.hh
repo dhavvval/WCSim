@@ -117,7 +117,7 @@ public:
   
   void Clear(Option_t *option ="");
 
-  ClassDef(WCSimRootTrack,6)  
+  ClassDef(WCSimRootTrack,7)  
 };
 
 
@@ -150,6 +150,7 @@ private:
   Float_t fTruetime;
   Int_t   fPrimaryParentID;
   Int_t  fDirectParentID;
+
 
 public:
   WCSimRootCherenkovHitTime() : fTruetime(0), fPrimaryParentID(-1), fDirectParentID(-1) {}

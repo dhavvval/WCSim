@@ -17,17 +17,15 @@ private:
   G4int  primaryParentID;
   G4int directParentID;
   G4int  parentPdg;
-  G4bool hasNeutronAncestor;
   //long long int numreflections;
 
 public:
-  WCSimTrackInformation() : saveit(false), primaryParentID(-1), directParentID(-1), parentPdg(0), hasNeutronAncestor(false)/*, numreflections(-1)*/ {}
+  WCSimTrackInformation() : saveit(false), primaryParentID(-1), directParentID(-1), parentPdg(0)/*, numreflections(-1)*/ {}
   WCSimTrackInformation(const WCSimTrackInformation* aninfo){
     saveit = aninfo->saveit;
     primaryParentID = aninfo->primaryParentID;
     directParentID = aninfo->directParentID;
     parentPdg = aninfo->parentPdg;
-    hasNeutronAncestor = aninfo->hasNeutronAncestor;
     //numreflections = aninfo->numreflections;
   }
   virtual ~WCSimTrackInformation() {}
@@ -44,9 +42,6 @@ public:
 
   void SetParentPdg(G4int i) { parentPdg = i;}
   G4int GetParentPdg() { return parentPdg;}
-
-  void SetHasNeutronAncestor(G4bool b) { hasNeutronAncestor = b;}
-  G4bool GetHasNeutronAncestor() { return hasNeutronAncestor;}
   
   //void IncrementNumReflections() {numreflections++;}
   //long long int GetNumReflections() {return numreflections;}

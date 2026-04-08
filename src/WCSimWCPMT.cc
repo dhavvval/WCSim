@@ -185,7 +185,7 @@ void WCSimWCPMT::MakePeCorrection(WCSimWCHitsCollection* WCHC)
 	      Digi->SetPrimaryParentID(ip,parent_id);
         Digi->SetDirectParentID(ip,directparent_id);
 	      DigiHitMapPMT[tube] = DigitsCollection->insert(Digi);
-	    }
+	    }	
 	    else {
 	      //G4cout<<"WCSimWCPMT::MakePeCorrection ☆ Adding to Digi in DigitsCollection for PMT "<<tube<<G4endl;
 	      (*DigitsCollection)[DigiHitMapPMT[tube]-1]->AddPe(time_PMT);

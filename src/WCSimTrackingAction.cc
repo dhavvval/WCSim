@@ -124,7 +124,7 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
       (ParticleList.count(aTrack->GetDefinition()->GetPDGEncoding())) || 
       (aTrack->GetDefinition()->GetPDGEncoding()==22 && aTrack->GetTotalEnergy() > 1.0*MeV) ||
       (creatorProcess->GetProcessName() == "muMinusCaptureAtRest" && aTrack->GetTotalEnergy() > 1.0*MeV)||
-      ( thispdg==22 && anInfo->GetParentPdg()==111) ){	//---> try this out to get lower energetic gammas
+      ( thispdg==22 && anInfo->GetParentPdg()==111) || anInfo->GetHasNeutronAncestor() ){	//---> try this out to get lower energetic gammas
     anInfo->WillBeSaved(true);
   } else {
     anInfo->WillBeSaved(false);
@@ -146,6 +146,7 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
         WCSimTrackInformation* infoSec = new WCSimTrackInformation(anInfo);
         infoSec->WillBeSaved(false);
         infoSec->SetParentPdg(thispdg);
+        infoSec->SetHasNeutronAncestor(anInfo->GetHasNeutronAncestor() || aTrack->GetDefinition()->GetPDGEncoding() == 2112); //
         infoSec->SetPrimaryParentID(anInfo->GetPrimaryParentID()); // pass down primary parent ID, Do I need to set DirectParentID too? (DJA)
         (*secondaries)[i]->SetUserInformation(infoSec);
       }
@@ -173,8 +174,8 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
       G4cout << "DEBUG WCSimTrackingAction: Track #" << trackDebugCount
              << " TrackID=" << aTrack->GetTrackID()
              << " PrimaryParentID=" << anInfo->GetPrimaryParentID()
-             << " DirectParentID(ParentID)=" << aTrack->GetParentID()
-             << " PDG=" << aTrack->GetDefinition()->GetPDGEncoding() << G4endl;
+             << " DirectParentID=" << aTrack->GetParentID()
+             << " PDG of this track=" << aTrack->GetDefinition()->GetPDGEncoding() << G4endl;
       trackDebugCount++;
     }
   }

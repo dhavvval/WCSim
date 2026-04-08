@@ -70,7 +70,6 @@ class WCSimWCHit : public G4VHit
   { primaryParentID.push_back(primParentID); }
   void AddDirectParentID(G4int directParID)
   { directParentID.push_back(directParID); }
-
   // This is temporarily used for the drawing scale
   static void SetMaxPe(G4int number = 0)  {maxPe   = number;};
 

@@ -9,11 +9,113 @@
 #include "G4EventManager.hh"
 #include "WCSimTrackInformation.hh"
 #include "WCSimEventInformation.hh"
+#include "WCSimTrackingMessenger.hh"
 #include "G4TransportationManager.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 #include "G4Event.hh"
 #include <algorithm>
+#include <cstdlib>
+
+namespace {
+
+struct NeutronCutValues {
+  G4double gammaMinKinE;
+  G4double electronMinKinE;
+  G4double protonMinKinE;
+  G4double ionMinKinE;
+  G4double maxGlobalTime;
+  bool     requireNeutronLikeProcess;
+};
+
+// Index 0=conservative, 1=balanced, 2=aggressive.
+// Select with env var WCSIM_NEUTRON_CUT_PROFILE or /WCSim/tracking/neutronCutProfile macro command.
+static const NeutronCutValues kProfiles[3] = {
+  // gamma      e+/-       proton     ion        t_max                req.proc
+  { 0.10*MeV,  0.05*MeV,  5.0*MeV,   0.20*MeV,  500.0*microsecond,   false }, // conservative
+  { 0.30*MeV,  0.15*MeV,  10.0*MeV,  0.50*MeV,  200.0*microsecond,   false }, // balanced
+  { 0.50*MeV,  0.30*MeV,  20.0*MeV,  1.00*MeV,  100.0*microsecond,   true  }, // aggressive
+};
+static const char* kProfileNames[3] = { "CONSERVATIVE", "BALANCED", "AGGRESSIVE" };
+
+const NeutronCutValues& GetNeutronCutValues() {
+  static const int idx = [](){
+    const char* e = std::getenv("WCSIM_NEUTRON_CUT_PROFILE");
+    int i = e ? std::atoi(e) : 1;
+    if (i < 0 || i > 2) i = 1;
+    G4cout << "WCSim neutron-descendant cut profile: " << kProfileNames[i]
+           << " (WCSIM_NEUTRON_CUT_PROFILE=" << i << ")\n"
+           << "  gamma>=" << kProfiles[i].gammaMinKinE/MeV << " MeV, "
+           << "e+/->=" << kProfiles[i].electronMinKinE/MeV << " MeV, "
+           << "p>=" << kProfiles[i].protonMinKinE/MeV << " MeV, "
+           << "ion>=" << kProfiles[i].ionMinKinE/MeV << " MeV, "
+           << "t<=" << kProfiles[i].maxGlobalTime/microsecond << " us, "
+           << "reqProc=" << kProfiles[i].requireNeutronLikeProcess << G4endl;
+    return i;
+  }();
+  return kProfiles[idx];
+}
+
+// Per-cut stats, printed at program exit.
+// To move this to end-of-run, call gStats.Print() from WCSimRunAction::EndOfRunAction.
+struct NeutronCutStats {
+  long seen = 0, saved = 0, rejTime = 0, rejEnergy = 0, rejProcess = 0;
+  ~NeutronCutStats() {
+    G4cout << "\n=== Neutron-ancestor cut stats ===\n"
+           << "  seen:           " << seen       << "\n"
+           << "  saved:          " << saved      << "\n"
+           << "  rej by time:    " << rejTime    << "\n"
+           << "  rej by energy:  " << rejEnergy  << "\n"
+           << "  rej by process: " << rejProcess << "\n"
+           << "==================================" << G4endl;
+  }
+};
+static NeutronCutStats gStats;
+
+// Exact-name set of processes relevant to neutron physics in water.
+// Tune this list after running once with a diagnostic print in PostUserTrackingAction
+// (see commented block there) to enumerate which process names your physics list produces.
+bool IsNeutronRelevantProcess(const G4VProcess* creatorProcess) {
+  if (!creatorProcess) return false;
+  static const std::set<std::string> kRelevant = {
+    "nCapture", "neutronInelastic", "hadElastic",
+    "protonInelastic", "compt", "phot", "conv", "eBrem",
+  };
+  return kRelevant.count(creatorProcess->GetProcessName()) > 0;
+}
+
+bool PassesNeutronAncestorCuts(const G4Track* aTrack,
+                               const G4VProcess* creatorProcess,
+                               G4int thispdg) {
+  ++gStats.seen;
+  const NeutronCutValues& cuts = GetNeutronCutValues();
+  const G4double ke = aTrack->GetKineticEnergy();
+
+  if (cuts.maxGlobalTime > 0.0 && aTrack->GetGlobalTime() > cuts.maxGlobalTime) {
+    ++gStats.rejTime;
+    return false;
+  }
+
+  if (cuts.requireNeutronLikeProcess && creatorProcess &&
+      !IsNeutronRelevantProcess(creatorProcess) &&
+      !((thispdg == 22 || std::abs(thispdg) == 11) && ke > 2.0 * MeV)) {
+    ++gStats.rejProcess;
+    return false;
+  }
+
+  const G4int absPdg = std::abs(thispdg);
+  bool pass = true;
+  if      (thispdg == 22)       pass = ke >= cuts.gammaMinKinE;
+  else if (absPdg  == 11)       pass = ke >= cuts.electronMinKinE;
+  else if (thispdg == 2212)     pass = ke >= cuts.protonMinKinE;
+  else if (absPdg  > 1000000000) pass = (thispdg == 1000010020) || (ke >= cuts.ionMinKinE);
+  // else: other hadrons/muons kept by default (pass stays true)
+
+  if (pass) ++gStats.saved; else ++gStats.rejEnergy;
+  return pass;
+}
+
+}  // namespace
 
 WCSimTrackingAction::WCSimTrackingAction(){
   ProcessList.insert("Decay") ;
@@ -40,10 +142,11 @@ WCSimTrackingAction::WCSimTrackingAction(){
 //  ParticleList.insert(11);   // e-    // do not save electrons unless they are from Decay process (mu decay)
 //  ParticleList.insert(-11);  // e+
 //  Don't put gammas there or there'll be too many -  we can add an energy cut later
-  
+
+  fMessenger = new WCSimTrackingMessenger();
 }
 
-WCSimTrackingAction::~WCSimTrackingAction(){;}
+WCSimTrackingAction::~WCSimTrackingAction(){ delete fMessenger; }
 
 void WCSimTrackingAction::PreUserTrackingAction(const G4Track* aTrack){
   G4float percentageOfCherenkovPhotonsToDraw = 0.0;
@@ -107,6 +210,18 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
   G4int thispdg;
   if(aTrack->GetDefinition()==G4OpticalPhoton::OpticalPhotonDefinition()) thispdg=100;
   else thispdg = aTrack->GetDefinition()->GetPDGEncoding();
+
+  /* // --- DIAGNOSTIC: enumerate neutron-ancestor creator processes ---
+  // Uncomment to collect the set of process names your physics list produces on
+  // neutron-descendant tracks, then feed them into IsNeutronRelevantProcess().
+  if (anInfo->GetHasNeutronAncestor() && creatorProcess) {
+    static std::set<std::string> seenProc;
+    const std::string& pn = creatorProcess->GetProcessName();
+    if (seenProc.insert(pn).second) {
+      G4cout << "[nDesc process seen] " << pn << "  (pdg=" << thispdg << ")" << G4endl;
+    }
+  }
+  */
   
   // check if it's of interest
   // *  is it a primary ?
@@ -119,12 +234,16 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
       ( thispdg==22 && aTrack->GetTotalEnergy()>50.0*MeV ) ||     // 50 MeV? 1MeV? what threshold?
       ( thispdg==22 && anInfo->GetParentPdg()==111 )              // gamma from a Pi0 decay
     ){*/		//-->this is currently the default
+    const bool neutronAncestorTrack = anInfo->GetHasNeutronAncestor();
+    const bool saveNeutronAncestorTrack =
+      neutronAncestorTrack && PassesNeutronAncestorCuts(aTrack, creatorProcess, thispdg);
+
     if( aTrack->GetParentID()==0 || 
       ((creatorProcess!=0) && ProcessList.count(creatorProcess->GetProcessName())) ||
       (ParticleList.count(aTrack->GetDefinition()->GetPDGEncoding())) || 
       (aTrack->GetDefinition()->GetPDGEncoding()==22 && aTrack->GetTotalEnergy() > 1.0*MeV) ||
-      (creatorProcess->GetProcessName() == "muMinusCaptureAtRest" && aTrack->GetTotalEnergy() > 1.0*MeV)||
-      ( thispdg==22 && anInfo->GetParentPdg()==111) || anInfo->GetHasNeutronAncestor() ){	//---> try this out to get lower energetic gammas
+      ((creatorProcess!=0) && creatorProcess->GetProcessName() == "muMinusCaptureAtRest" && aTrack->GetTotalEnergy() > 1.0*MeV)||
+      ( thispdg==22 && anInfo->GetParentPdg()==111) || saveNeutronAncestorTrack ){	//---> try this out to get lower energetic gammas
     anInfo->WillBeSaved(true);
   } else {
     anInfo->WillBeSaved(false);

@@ -8,6 +8,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class G4Track;
+class WCSimTrackingMessenger;
 
 class WCSimTrackingAction : public G4UserTrackingAction
 {
@@ -22,6 +23,7 @@ private:
   std::set<G4String> ProcessList;
   std::set<G4int> ParticleList;
   std::set<G4int> pi0List;
+  WCSimTrackingMessenger* fMessenger;
 };
 
 

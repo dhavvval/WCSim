@@ -133,56 +133,72 @@ void sample_readfile(char *filename=NULL, bool verbose=false)
       printf("Number of Delayed Triggers (sub events): %d\n",
        wcsimrootsuperevent->GetNumberOfSubEvents());
       
-      printf("Neutrino Vertex Geometry Volume Code: %d\n", wcsimrootevent->GetVtxvol());
-      printf("Neutrino Vertex Location [cm]: %f %f %f\n", wcsimrootevent->GetVtx(0),
-       wcsimrootevent->GetVtx(1),wcsimrootevent->GetVtx(2));
+      // Print all primary source vertices (supports multi-source GPS)
+      int nvtxs = wcsimrootevent->GetNvtxs();
+      printf("Number of primary vertices: %d\n", nvtxs);
+      for(int vv=0; vv<nvtxs; vv++){
+        printf("  Vertex %d location [cm]: %f %f %f (vol=%d)\n", vv,
+          wcsimrootevent->GetVtxs(vv,0),
+          wcsimrootevent->GetVtxs(vv,1),
+          wcsimrootevent->GetVtxs(vv,2),
+          wcsimrootevent->GetVtxsvol(vv));
+      }
     }
-    hvtx0->Fill(wcsimrootevent->GetVtx(0));
-    hvtx1->Fill(wcsimrootevent->GetVtx(1));
-    hvtx2->Fill(wcsimrootevent->GetVtx(2));
+    hvtx0->Fill(wcsimrootevent->GetVtxs(0,0));
+    hvtx1->Fill(wcsimrootevent->GetVtxs(0,1));
+    hvtx2->Fill(wcsimrootevent->GetVtxs(0,2));
 
     if(verbose){
       printf("Index of muon in WCSimRootTracks %d\n", wcsimrootevent->GetJmu());
       printf("Number of final state particles %d\n", wcsimrootevent->GetNpar());
       printf("Number of Saved WCSimRootTracks %d\n", wcsimrootevent->GetNtrack());
     }
-    // Now read the tracks in the event
-    
-    // Get the number of tracks
-    int ntrack = wcsimrootevent->GetNtrack();
-    
     int i;
-    // Loop through elements in the TClonesArray of WCSimTracks
-    cout<<"Recorded Tracks:"<<endl;
-    for (i=0; i<ntrack; i++)
-    {
-      TObject *element = (wcsimrootevent->GetTracks())->At(i);
-      
-      WCSimRootTrack *wcsimroottrack = dynamic_cast<WCSimRootTrack*>(element);
+    // Loop through tracks — check trigger 0 and all sub-events
+    // (WCSim may store delayed-capture tracks in sub-event triggers)
+    int ntriggers = wcsimrootsuperevent->GetNumberOfEvents();
+    for(int trig=0; trig < ntriggers; trig++){
+      WCSimRootTrigger* trigEvent = wcsimrootsuperevent->GetTrigger(trig);
+      int ntrack_trig = trigEvent->GetNtrack();
+      if(verbose)
+        printf("--- Tracks in trigger %d: %d ---\n", trig, ntrack_trig);
+      else if(trig==0)
+        cout<<"Recorded Tracks (trigger 0):"<<endl;
 
-      if(verbose){
-        cout<<"Track: "<<i<<endl;
-        int trackflag = wcsimroottrack->GetFlag();
-        if(trackflag==-1) cout<<"  Primary neutrino track"<<endl;
-        else if(trackflag==-2) cout<<"Neutrino target nucleus track"<<endl;
-        else cout<<"Final state particle track"<<endl;
-        printf("  Track ipnu (PDG code): %d\n",wcsimroottrack->GetIpnu());
-        printf("  PDG code of parent particle (0 for primary): %d\n",wcsimroottrack->GetParenttype());
-            
-        cout<<"  Track initial dir [unit 3-vector]: ("
-            <<wcsimroottrack->GetDir(0)<<", "
-            <<wcsimroottrack->GetDir(1)<<", "
-            <<wcsimroottrack->GetDir(2)<<")"<<endl;
-        printf("  Track initial relativistic energy [MeV]: %f\n", wcsimroottrack->GetE());
-        printf("  Track initial momentum magnitude [MeV/c]: %f\n", wcsimroottrack->GetP());
-        printf("  Track mass [MeV/c2]: %f\n", wcsimroottrack->GetM());
-        printf("  Track ID: %d\n", wcsimroottrack->GetId());
-	printf("PrimaryParentID: %d\n", wcsimroottrack->GetPrimaryParentID());
-        printf("  DirectParentID: %d\n", wcsimroottrack->GetDirectParentID());      
-}
+      for (i=0; i<ntrack_trig; i++)
+      {
+        TObject *element = (trigEvent->GetTracks())->At(i);
+        WCSimRootTrack *wcsimroottrack = dynamic_cast<WCSimRootTrack*>(element);
 
-      
-    }  // End of loop over tracks
+        // Skip JHF ntuple placeholder entries (ghost tracks with TrackID=0)
+        if(wcsimroottrack->GetId() == 0 && wcsimroottrack->GetPrimaryParentID() == -1) continue;
+
+        if(verbose){
+          cout<<"Track: "<<i<<" [trig "<<trig<<"]"<<endl;
+          int trackflag = wcsimroottrack->GetFlag();
+          if(trackflag==-1)      cout<<"  Primary neutrino track (placeholder)"<<endl;
+          else if(trackflag==-2) cout<<"  Neutrino target nucleus track (placeholder)"<<endl;
+          else                   cout<<"  Final state particle track"<<endl;
+          printf("  Track ipnu (PDG code): %d\n",   wcsimroottrack->GetIpnu());
+          printf("  PDG code of parent: %d\n",       wcsimroottrack->GetParenttype());
+          printf("  Start pos [cm]: (%f, %f, %f)\n", wcsimroottrack->GetStart(0),
+                                                       wcsimroottrack->GetStart(1),
+                                                       wcsimroottrack->GetStart(2));
+          cout<<"  Dir: ("<<wcsimroottrack->GetDir(0)<<", "
+                          <<wcsimroottrack->GetDir(1)<<", "
+                          <<wcsimroottrack->GetDir(2)<<")"<<endl;
+          printf("  Energy [MeV]: %f  |  Momentum [MeV/c]: %f  |  Mass [MeV/c2]: %f\n",
+                 wcsimroottrack->GetE(), wcsimroottrack->GetP(), wcsimroottrack->GetM());
+          printf("  TrackID: %d  |  PrimaryParentID: %d  |  DirectParentID: %d\n",
+                 wcsimroottrack->GetId(),
+                 wcsimroottrack->GetPrimaryParentID(),
+                 wcsimroottrack->GetDirectParentID());
+          printf("  Start process: %s  |  End process: %s\n",
+                 wcsimroottrack->GetStartProcess().c_str(),
+                 wcsimroottrack->GetEndProcess().c_str());
+        }
+      }  // end track loop for this trigger
+    }  // end trigger loop
     
     // Now look at the Cherenkov hits
     

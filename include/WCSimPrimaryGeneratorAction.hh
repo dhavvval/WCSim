@@ -20,6 +20,13 @@
 #include "Framework/Interaction/Interaction.h"
 #endif
 #include "WCSimRootOptions.hh"
+#include "WCSimIBDGen.hh"
+#include "WCSimAmBeGen.hh"
+#include "WCSimGenerator_Radioactivity.hh"
+
+#ifdef WCSIM_HEPMC3_ENABLED
+#include "WCSimNuHepMC3Reader.hh"
+#endif
 
 class WCSimDetectorConstruction;
 class G4ParticleGun;
@@ -90,6 +97,10 @@ private:
   G4bool   useLaserEvt;  //T. Akiri: Laser flag
   G4bool   useBeamEvt;
   G4bool   useGPSEvt;
+  G4bool   useIBDEvt;
+  G4bool   useAmBeEvt;
+  G4bool   useRadonEvt;
+  G4bool   useHepMC3Evt;
   std::fstream inputFile;
   G4String vectorFileName;
   G4bool   GenerateVertexInRock;
@@ -140,7 +151,28 @@ private:
 	G4String neutrinosDirectory;
 	G4bool loadNewPrimaries;
 	G4int primariesoffset;
-	
+
+  // IBD generator
+  WCSimIBDGen*  IBDGen;
+  G4String      ibd_database;
+  G4String      ibd_model;
+
+  // AmBe calibration source
+  WCSimAmBeGen* AmBeGen;
+
+  // Radon/radioactivity generator
+  WCSimGenerator_Radioactivity* myRn222Generator;
+  G4int    fRnScenario;
+  G4int    fRnSymmetry;
+  G4double fRnWaterConc;
+
+  // HepMC3 reader
+  G4String hepmc3_filename;
+  G4bool   hepmc3_positionGen;
+#ifdef WCSIM_HEPMC3_ENABLED
+  WCSimNuHepMC3Reader* hepmc3_reader;
+#endif
+
 public:
 
   inline void SetMulineEvtGenerator(G4bool choice) { useMulineEvt = choice; }
@@ -158,6 +190,25 @@ public:
 
   inline void SetGPSEvtGenerator(G4bool choice) { useGPSEvt = choice; }
   inline G4bool IsUsingGPSEvtGenerator()  { return useGPSEvt; }
+
+  inline void SetIBDEvtGenerator(G4bool choice)  { useIBDEvt = choice; }
+  inline G4bool IsUsingIBDEvtGenerator()          { return useIBDEvt; }
+  inline void SetIBDDatabase(G4String choice)     { ibd_database = choice; }
+  inline void SetIBDModel(G4String choice)        { ibd_model = choice; }
+
+  inline void SetAmBeEvtGenerator(G4bool choice) { useAmBeEvt = choice; }
+  inline G4bool IsUsingAmBeEvtGenerator()         { return useAmBeEvt; }
+
+  inline void SetRadonEvtGenerator(G4bool choice) { useRadonEvt = choice; }
+  inline G4bool IsUsingRadonEvtGenerator()         { return useRadonEvt; }
+  inline void SetRadonScenario(G4int choice)       { fRnScenario = choice; }
+  inline void SetRadonSymmetry(G4int choice)       { fRnSymmetry = choice; }
+  inline void SetRadonWaterConcentration(G4double c){ fRnWaterConc = c; }
+
+  inline void SetHepMC3EvtGenerator(G4bool choice){ useHepMC3Evt = choice; }
+  inline G4bool IsUsingHepMC3EvtGenerator()        { return useHepMC3Evt; }
+  inline void SetHepMC3Filename(G4String choice)   { hepmc3_filename = choice; }
+  inline void SetHepMC3PositionGen(G4bool choice)  { hepmc3_positionGen = choice; }
 
   inline void OpenVectorFile(G4String fileName) 
   {

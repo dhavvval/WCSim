@@ -2,6 +2,12 @@
 #include "WCSimPrimaryGeneratorAction.hh"
 #include "WCSimDetectorConstruction.hh"
 #include "WCSimPrimaryGeneratorMessenger.hh"
+#include "WCSimIBDGen.hh"
+#include "WCSimAmBeGen.hh"
+#include "WCSimGenerator_Radioactivity.hh"
+#ifdef WCSIM_HEPMC3_ENABLED
+#include "WCSimNuHepMC3Reader.hh"
+#endif
 #include "WCSimEventInformation.hh"
 
 #include "G4Event.hh"
@@ -97,10 +103,28 @@ WCSimPrimaryGeneratorAction::WCSimPrimaryGeneratorAction(
     
   messenger = new WCSimPrimaryGeneratorMessenger(this);
   useMulineEvt = false;
-  useGunEvt = false;
-  useLaserEvt = false;
-  useBeamEvt = true;
-  useGPSEvt = false;
+  useGunEvt    = false;
+  useLaserEvt  = false;
+  useBeamEvt   = true;
+  useGPSEvt    = false;
+  useIBDEvt    = false;
+  useAmBeEvt   = false;
+  useRadonEvt  = false;
+  useHepMC3Evt = false;
+
+  IBDGen           = nullptr;
+  AmBeGen          = nullptr;
+  myRn222Generator = nullptr;
+  ibd_database     = "";
+  ibd_model        = "Flat";
+  hepmc3_filename  = "";
+  hepmc3_positionGen = false;
+  fRnScenario      = 1;
+  fRnSymmetry      = 1;
+  fRnWaterConc     = 2.63;
+#ifdef WCSIM_HEPMC3_ENABLED
+  hepmc3_reader    = nullptr;
+#endif
 
 #ifndef NO_GENIE      
   genierecordval = new genie::NtpMCEventRecord;
@@ -119,6 +143,12 @@ WCSimPrimaryGeneratorAction::~WCSimPrimaryGeneratorAction()
   delete particleGun;
   delete MyGPS;   //T. Akiri: Delete the GPS variable
   delete messenger;
+  if (IBDGen)           { delete IBDGen;           IBDGen = nullptr; }
+  if (AmBeGen)          { delete AmBeGen;           AmBeGen = nullptr; }
+  if (myRn222Generator) { delete myRn222Generator;  myRn222Generator = nullptr; }
+#ifdef WCSIM_HEPMC3_ENABLED
+  if (hepmc3_reader)    { delete hepmc3_reader;     hepmc3_reader = nullptr; }
+#endif
   
   if(useBeamEvt){
     if(inputdata){
@@ -868,14 +898,14 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         int nparticles = thevertex->GetNumberOfParticle();
         G4cout<<"Primary vertex "<<evtvtxi<<" has "<<nparticles<<" particles"<<G4endl;
         vtx  = thevertex->GetPosition();
-        
+
         for(int parti=0; parti<nparticles; parti++){
           G4PrimaryParticle* theprimary = thevertex->GetPrimary(parti);
           pdg  = theprimary->GetPDGcode();
           tote = theprimary->GetTotalEnergy();
           ke   = theprimary->GetKineticEnergy();
           dir  = theprimary->GetMomentum().unit();
-          
+
           G4ParticleDefinition* parttype = particleTable->FindParticle(pdg);
           G4String particlename;
           particlename = (parttype!=0) ? (std::string(parttype->GetParticleName())) : (std::to_string(pdg));
@@ -886,6 +916,117 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         }
       }
     }
+
+  // -------------------------------------------------------
+  // IBD generator: antineutrino inverse beta decay
+  // -------------------------------------------------------
+  else if (useIBDEvt) {
+    if (!IBDGen) {
+      IBDGen = new WCSimIBDGen(ibd_database, ibd_model, myDetector);
+    }
+    G4ThreeVector nu_dir;
+    G4LorentzVector neutrino, positron, neutron;
+    IBDGen->GenEvent(nu_dir, neutrino, positron, neutron);
+    G4ThreeVector vtx_ibd = IBDGen->GenRandomPosition();
+    SetVtx(vtx_ibd);
+    // Positron
+    particleGun->SetParticleDefinition(particleTable->FindParticle("e+"));
+    particleGun->SetParticlePosition(vtx_ibd);
+    particleGun->SetParticleMomentumDirection(positron.vect().unit());
+    particleGun->SetParticleEnergy(positron.e() - positron.m());
+    particleGun->GeneratePrimaryVertex(anEvent);
+    // Neutron
+    particleGun->SetParticleDefinition(particleTable->FindParticle("neutron"));
+    particleGun->SetParticlePosition(vtx_ibd);
+    particleGun->SetParticleMomentumDirection(neutron.vect().unit());
+    particleGun->SetParticleEnergy(neutron.e() - neutron.m());
+    particleGun->GeneratePrimaryVertex(anEvent);
+    SetBeamPDG(-11, 0);  // positron
+    SetBeamEnergy(positron.e(), 0);
+    SetBeamDir(positron.vect().unit(), 0);
+  }
+
+  // -------------------------------------------------------
+  // AmBe calibration source: correlated n + gamma
+  // -------------------------------------------------------
+  else if (useAmBeEvt) {
+    if (!AmBeGen) {
+      AmBeGen = new WCSimAmBeGen(myDetector);
+    }
+    AmBeGen->GenerateNG(anEvent);
+    G4ThreeVector vtx_ambe = AmBeGen->GetPositionBGOGeometry();
+    SetVtx(vtx_ambe);
+  }
+
+  // -------------------------------------------------------
+  // Radon generator: Rn-222 spatial distribution
+  // -------------------------------------------------------
+  else if (useRadonEvt) {
+    if (!myRn222Generator) {
+      myRn222Generator = new WCSimGenerator_Radioactivity(myDetector);
+      myRn222Generator->Configuration(fRnScenario, fRnWaterConc);
+    }
+    MyGPS->ClearAll();
+    MyGPS->SetMultipleVertex(true);
+    G4int nBi = G4int(G4Poisson(fRnWaterConc * myDetector->GetIDHeight() * CLHEP::pi
+                                * myDetector->GetIDRadius() * myDetector->GetIDRadius()
+                                / (CLHEP::m * CLHEP::m * CLHEP::m) * 1e-3));
+    for (G4int i = 0; i < nBi; i++) {
+      G4ThreeVector rnpos = myRn222Generator->GetRandomVertex(fRnSymmetry);
+      MyGPS->AddaSource(1.0);
+      MyGPS->SetCurrentSourceto(i);
+      MyGPS->GetCurrentSource()->GetPosDist()->SetPosDisType("Point");
+      MyGPS->GetCurrentSource()->GetPosDist()->SetCentreCoords(rnpos);
+      MyGPS->GetCurrentSource()->GetAngDist()->SetAngDistType("iso");
+      MyGPS->GetCurrentSource()->GetEneDist()->SetEnergyDisType("Mono");
+      MyGPS->GetCurrentSource()->GetEneDist()->SetMonoEnergy(0.)*CLHEP::MeV;
+      MyGPS->GetCurrentSource()->GetParticleDef()->SetParticleDefinition(
+        particleTable->FindParticle("e-"));
+    }
+    if (nBi > 0) MyGPS->GeneratePrimaryVertex(anEvent);
+    SetNvtxs(anEvent->GetNumberOfPrimaryVertex());
+    for (int vi = 0; vi < anEvent->GetNumberOfPrimaryVertex() && vi < MAX_N_PRIMARIES; vi++)
+      SetVtxs(vi, anEvent->GetPrimaryVertex(vi)->GetPosition());
+  }
+
+  // -------------------------------------------------------
+  // HepMC3 reader: standardised neutrino event input
+  // -------------------------------------------------------
+  else if (useHepMC3Evt) {
+#ifdef WCSIM_HEPMC3_ENABLED
+    if (!hepmc3_reader) {
+      hepmc3_reader = new WCSimNuHepMC3Reader(hepmc3_filename, myDetector);
+    }
+    if (!hepmc3_reader->ReadEvent(hepmc3_positionGen)) {
+      G4RunManager::GetRunManager()->AbortRun();
+      return;
+    }
+    for (auto part : hepmc3_reader->event.particles()) {
+      if (part->pid() == 2009900000) continue;  // skip nuclear remnants
+      if (part->status() == 1) {
+        // Final-state particle: fire it
+        G4ThreeVector hpos = hepmc3_reader->vertex_pos;
+        particleGun->SetParticleDefinition(
+          particleTable->FindParticle(part->pid()));
+        if (!particleGun->GetParticleDefinition()) continue;
+        HepMC3::FourVector p4 = part->momentum();
+        G4ThreeVector p3(p4.px()*CLHEP::GeV, p4.py()*CLHEP::GeV, p4.pz()*CLHEP::GeV);
+        particleGun->SetParticlePosition(hpos);
+        particleGun->SetParticleMomentumDirection(p3.unit());
+        G4double mass = particleGun->GetParticleDefinition()->GetPDGMass();
+        G4double ke   = std::sqrt(p3.mag2() + mass*mass) - mass;
+        particleGun->SetParticleEnergy(ke);
+        particleGun->GeneratePrimaryVertex(anEvent);
+      }
+    }
+    SetVtx(hepmc3_reader->vertex_pos);
+#else
+    G4cerr << "WCSimPrimaryGeneratorAction: HepMC3 events requested but "
+           << "interface not compiled. Build with WCSIM_HEPMC3_ENABLED=ON." << G4endl;
+    G4RunManager::GetRunManager()->AbortRun();
+#endif
+  }
+
 }
 
 void WCSimPrimaryGeneratorAction::SaveOptionsToOutput(WCSimRootOptions * wcopt)
@@ -909,6 +1050,14 @@ G4String WCSimPrimaryGeneratorAction::GetGeneratorTypeString()
     return "laser";
   else if(useBeamEvt)
     return "beam";
+  else if(useIBDEvt)
+    return "ibd";
+  else if(useAmBeEvt)
+    return "ambe";
+  else if(useRadonEvt)
+    return "radon";
+  else if(useHepMC3Evt)
+    return "hepmc3";
   return "";
 }
 

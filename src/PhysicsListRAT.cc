@@ -15,9 +15,10 @@
 #include <G4ParticleDefinition.hh>
 #include <G4ProcessManager.hh>
 #include <G4ProcessVector.hh>
-#include <G4OpBoundaryProcess.hh>
 #include <G4OpAbsorption.hh>
 #include <G4OpRayleigh.hh>
+#include "WCSimOpBoundaryProcess.hh"
+#include "WCSimOpRaman.hh"
 #include <G4RunManager.hh>
 #include <PhysicsListRAT.hh>
 
@@ -114,7 +115,8 @@ void PhysicsListRAT::ConstructOpticalProcesses() {
   // Optical boundary processes: default G4
   G4Scintillation *defaultScintProcess = new G4Scintillation();
   G4OpRayleigh *rayleighProcess = new G4OpRayleigh();
-  G4OpBoundaryProcess* opBoundaryProcess = new G4OpBoundaryProcess();
+  WCSimOpBoundaryProcess* opBoundaryProcess = new WCSimOpBoundaryProcess();
+  WCSimOpRaman* ramanProcess = new WCSimOpRaman();
 
   // Set verbosity
   if (verboseLevel > 0) {
@@ -126,6 +128,7 @@ void PhysicsListRAT::ConstructOpticalProcesses() {
     //alphaScintProcess->DumpInfo();
     opBoundaryProcess->DumpInfo();
     rayleighProcess->DumpInfo();
+    ramanProcess->DumpInfo();
   }
 
   cerenkovProcess->SetVerboseLevel(verboseLevel-1);
@@ -136,6 +139,7 @@ void PhysicsListRAT::ConstructOpticalProcesses() {
   //alphaScintProcess->SetVerboseLevel(verboseLevel-1);
   opBoundaryProcess->SetVerboseLevel(verboseLevel-1);
   rayleighProcess->SetVerboseLevel(verboseLevel-1);
+  ramanProcess->SetVerboseLevel(verboseLevel-1);
   // Apply processes to all particles where applicable
   theParticleIterator->reset();
   while((*theParticleIterator)()) {
@@ -148,8 +152,10 @@ void PhysicsListRAT::ConstructOpticalProcesses() {
     }
     if (particleName == "opticalphoton") {
       //pmanager->AddDiscreteProcess(attenuationProcess);
+      pmanager->AddDiscreteProcess(absorptionProcess);
       pmanager->AddDiscreteProcess(opBoundaryProcess);
       pmanager->AddDiscreteProcess(rayleighProcess);
+      pmanager->AddDiscreteProcess(ramanProcess);
     }
   }
 }

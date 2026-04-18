@@ -177,6 +177,9 @@ public:
   G4ThreeVector GetWCOffset(){return WCOffset;}
 	G4ThreeVector GetWCOffset2(){return WCOffset2;}
 
+  G4double GetIDHeight() {return WCIDHeight;}
+  G4double GetIDRadius() {return WCIDRadius;}
+
   //_________lappd ________
 
   WCSimLAPPDObject * CreateLAPPDObject(G4String, G4String);

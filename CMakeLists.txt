@@ -119,7 +119,8 @@ MODULE WCSimRoot
 add_library(WCSimRoot SHARED ./src/WCSimRootEvent.cc ./src/WCSimRootGeom.cc
 ./src/WCSimPmtInfo.cc ./src/WCSimEnumerations.cc ./src/WCSimRootDict.cxx
 ./src/WCSimLAPPDInfo.cc ./src/WCSimLAPPDpulse.cc
-./src/WCSimLAPPDpulseCluster.cc ./src/WCSimRootOptions.cc 
+./src/WCSimLAPPDpulseCluster.cc ./src/WCSimRootOptions.cc
+./src/WCSimRootTools.cc
 )
 target_link_libraries(WCSimRoot  ${ROOT_LIBRARIES})
 
@@ -154,6 +155,23 @@ include(${Geant4_USE_FILE})  ## NOT needed for Dict
 
 #----------------------------------------------------------------------------
 # CADMESH install location for reading CAD STL files
+#----------------------------------------------------------------------------
+# Optional HepMC3 support for standardised neutrino event input
+#
+option(WCSIM_HEPMC3_ENABLED "Enable HepMC3 neutrino event file reader" OFF)
+if(WCSIM_HEPMC3_ENABLED)
+  find_package(HepMC3 REQUIRED)
+  if(HepMC3_FOUND)
+    message(STATUS "HepMC3 found: enabling WCSimNuHepMC3Reader")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWCSIM_HEPMC3_ENABLED")
+    include_directories(${HEPMC3_INCLUDE_DIR})
+  else()
+    message(STATUS "HepMC3 NOT found: disabling WCSimNuHepMC3Reader")
+  endif()
+else()
+  message(STATUS "HepMC3 support disabled (build with -DWCSIM_HEPMC3_ENABLED=ON to enable)")
+endif()
+
 if(DEFINED ENV{ENABLE_CADMESH})
   
   set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} $ENV{CADMESH_CMAKE_DIR})
@@ -184,7 +202,11 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(WCSim WCSim.cc ${sources} ${headers})
-target_link_libraries(WCSim ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Genie_LIBRARIES} ${Root_LIBRARIES} WCSimRoot Tree ${cadmesh_LIBRARIES})
+if(WCSIM_HEPMC3_ENABLED AND HepMC3_FOUND)
+  target_link_libraries(WCSim ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Genie_LIBRARIES} ${Root_LIBRARIES} WCSimRoot Tree ${cadmesh_LIBRARIES} ${HEPMC3_LIBRARIES})
+else()
+  target_link_libraries(WCSim ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${Genie_LIBRARIES} ${Root_LIBRARIES} WCSimRoot Tree ${cadmesh_LIBRARIES})
+endif()
 
 
 

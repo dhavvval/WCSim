@@ -19,9 +19,7 @@
 #include <fstream>
 #include <map>
 #include <vector>
-//#include <hash_map.h>
-// warning : hash_map is not part of the standard
-#include <ext/hash_map>
+#include <unordered_map>
 
 // **************SciBooNE integration
 //#include "SBsimInputCard.hh"	--crossed out by marcus, try to simplify by extracting just mrd struct
@@ -40,10 +38,6 @@ static const G4double INCH = 2.54*cm;
 // *************/SciBooNE integration
 
 
-using __gnu_cxx::hash;
-using __gnu_cxx::hashtable;
-using __gnu_cxx::hash_map;
-using __gnu_cxx::hash_multimap;
 
 // (JF) We don't need this distinction for DUSEL
 //enum cyl_location {endcap1,wall,endcap2};
@@ -57,16 +51,6 @@ class G4VPhysicalVolume;
 class WCSimTuningParameters;
 class WCSimDetectorMessenger;
 class WCSimWCSD;
-
-namespace __gnu_cxx  {
-  template<> struct hash< std::string >
-  {
-    size_t operator()( const std::string& x ) const
-    {
-      return hash< const char* >()( x.c_str() );
-    }
-  };
-}
 
 class WCSimDetectorConstruction : public G4VUserDetectorConstruction
 {
@@ -608,10 +592,10 @@ private:
 
   static std::map<int, G4Transform3D> tubeIDMap;
 //  static std::map<int, cyl_location> tubeCylLocation;
-  static hash_map<std::string, int, hash<std::string> >  tubeLocationMap; 
+  static std::unordered_map<std::string, int>  tubeLocationMap; 
  
   static std::map<int, G4Transform3D> lappdIDMap;
-  static hash_map<std::string, int, hash<std::string> >  lappdLocationMap;
+  static std::unordered_map<std::string, int>  lappdLocationMap;
 
   // Variables related to configuration
 
@@ -690,8 +674,8 @@ private:
   G4int totalNumFaccPMTs;
   static std::map<int, G4Transform3D> mrdtubeIDMap; 
   static std::map<int, G4Transform3D> facctubeIDMap;
-  static hash_map<std::string, int, hash<std::string> > mrdtubeLocationMap;
-  static hash_map<std::string, int, hash<std::string> > facctubeLocationMap; 
+  static std::unordered_map<std::string, int> mrdtubeLocationMap;
+  static std::unordered_map<std::string, int> facctubeLocationMap; 
   std::vector<WCSimPmtInfo*> fmrdpmts, ffaccpmts;
   std::vector<WCSimPmtInfo*>* Get_MrdPmts() {return &fmrdpmts;}
   std::vector<WCSimPmtInfo*>* Get_FaccPmts() {return &ffaccpmts;}

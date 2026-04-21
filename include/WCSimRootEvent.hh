@@ -140,7 +140,7 @@ public:
   Int_t GetTubeID()       const { return fTubeID;}
   Int_t GetTotalPe(int i) const { return (i<2) ? fTotalPe[i]: 0;}
 
-  ClassDef(WCSimRootCherenkovHit,1)  
+  ClassDef(WCSimRootCherenkovHit,1)
 };
 
 class WCSimRootCherenkovHitTime : public TObject {
@@ -149,10 +149,11 @@ private:
   // See jhfNtuple.h for the meaning of these data members:
   Float_t fTruetime;
   Int_t   fPrimaryParentID;
-  Int_t  fDirectParentID;
+  Int_t   fDirectParentID;
+  Bool_t  fIsNoise;  // Explicit dark noise flag: true if hit from WCSimWCAddDarkNoise
 
 public:
-  WCSimRootCherenkovHitTime() : fTruetime(0), fPrimaryParentID(-1), fDirectParentID(-1) {}
+  WCSimRootCherenkovHitTime() : fTruetime(0), fPrimaryParentID(-1), fDirectParentID(-1), fIsNoise(false) {}
   WCSimRootCherenkovHitTime(Float_t truetime,
 			    Int_t   primaryParentID,
 			    Int_t   directParentID);
@@ -161,8 +162,11 @@ public:
   Float_t   GetTruetime() { return fTruetime;}
   Int_t     GetPrimaryParentID() { return fPrimaryParentID;}
   Int_t     GetDirectParentID() { return fDirectParentID;}
+  Bool_t    GetIsNoise() { return fIsNoise;}
 
-  ClassDef(WCSimRootCherenkovHitTime,6)  
+  void SetIsNoise(Bool_t noise) { fIsNoise = noise; }
+
+  ClassDef(WCSimRootCherenkovHitTime,7)
 };
 
 

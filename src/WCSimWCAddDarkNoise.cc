@@ -375,7 +375,7 @@ void WCSimWCAddDarkNoise::AddDarkNoiseBeforeDigi(WCSimWCDigitsCollection* WCHCPM
 	  (*WCHCPMT)[ list[noise_pmt]-1 ]->SetTime(PMTindex[noise_pmt],current_time);
 	  (*WCHCPMT)[ list[noise_pmt]-1 ]->SetPreSmearTime(PMTindex[noise_pmt],current_time); //presmear==postsmear for dark noise
 	  (*WCHCPMT)[ list[noise_pmt]-1 ]->SetPrimaryParentID(PMTindex[noise_pmt],-1);
-    (*WCHCPMT)[ list[noise_pmt]-1 ]->SetDirectParentID(PMTindex[noise_pmt],-1);	
+    (*WCHCPMT)[ list[noise_pmt]-1 ]->SetDirectParentID(PMTindex[noise_pmt],-1);
 	  PMTindex[noise_pmt]++;
 #ifdef WCSIMWCADDDARKNOISE_VERBOSE
 	  if(noise_pmt < NPMTS_VERBOSE)

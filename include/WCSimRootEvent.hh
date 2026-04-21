@@ -140,7 +140,7 @@ public:
   Int_t GetTubeID()       const { return fTubeID;}
   Int_t GetTotalPe(int i) const { return (i<2) ? fTotalPe[i]: 0;}
 
-  ClassDef(WCSimRootCherenkovHit,1)  
+  ClassDef(WCSimRootCherenkovHit,1)
 };
 
 class WCSimRootCherenkovHitTime : public TObject {
@@ -151,9 +151,10 @@ private:
   Int_t   fPrimaryParentID;
   Int_t  fDirectParentID;
   Int_t  fDirectParentPDG;
+  Bool_t fIsNoise;
 
 public:
-  WCSimRootCherenkovHitTime() : fTruetime(0), fPrimaryParentID(-1), fDirectParentID(-1) {}
+  WCSimRootCherenkovHitTime() : fTruetime(0), fPrimaryParentID(-1), fDirectParentID(-1), fIsNoise(false) {}
   WCSimRootCherenkovHitTime(Float_t truetime,
 			    Int_t   primaryParentID,
 			    Int_t   directParentID,
@@ -164,8 +165,11 @@ public:
   Int_t     GetPrimaryParentID() { return fPrimaryParentID;}
   Int_t     GetDirectParentID() { return fDirectParentID;}
   Int_t     GetDirectParentPDG() { return fDirectParentPDG;}
+  Bool_t    GetIsNoise() { return fIsNoise;}
 
-  ClassDef(WCSimRootCherenkovHitTime,6)
+  void SetIsNoise(Bool_t noise) { fIsNoise = noise; }
+
+  ClassDef(WCSimRootCherenkovHitTime,7)
 };
 
 

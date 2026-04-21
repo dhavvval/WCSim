@@ -165,10 +165,26 @@ void sample_readfile(char *filename=NULL, bool verbose=false)
       else if(trig==0)
         cout<<"Recorded Tracks (trigger 0):"<<endl;
 
-      for (i=0; i<ntrack_trig; i++)
-      {
-        TObject *element = (trigEvent->GetTracks())->At(i);
-        WCSimRootTrack *wcsimroottrack = dynamic_cast<WCSimRootTrack*>(element);
+      if(verbose){
+        cout<<"Track: "<<i<<endl;
+        int trackflag = wcsimroottrack->GetFlag();
+        if(trackflag==-1) cout<<"  Primary neutrino track"<<endl;
+        else if(trackflag==-2) cout<<"Neutrino target nucleus track"<<endl;
+        else cout<<"Final state particle track"<<endl;
+        printf("  Track ipnu (PDG code): %d\n",wcsimroottrack->GetIpnu());
+        printf("  PDG code of parent particle (0 for primary): %d\n",wcsimroottrack->GetParenttype());
+            
+        cout<<"  Track initial dir [unit 3-vector]: ("
+            <<wcsimroottrack->GetDir(0)<<", "
+            <<wcsimroottrack->GetDir(1)<<", "
+            <<wcsimroottrack->GetDir(2)<<")"<<endl;
+        printf("  Track initial relativistic energy [MeV]: %f\n", wcsimroottrack->GetE());
+        printf("  Track initial momentum magnitude [MeV/c]: %f\n", wcsimroottrack->GetP());
+        printf("  Track mass [MeV/c2]: %f\n", wcsimroottrack->GetM());
+        printf("  Track ID: %d\n", wcsimroottrack->GetId());
+	printf("PrimaryParentID: %d\n", wcsimroottrack->GetPrimaryParentID());
+        printf("  DirectParentID: %d\n", wcsimroottrack->GetDirectParentID());      
+}
 
         // Skip JHF ntuple placeholder entries (ghost tracks with TrackID=0)
         if(wcsimroottrack->GetId() == 0 && wcsimroottrack->GetPrimaryParentID() == -1) continue;

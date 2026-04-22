@@ -64,6 +64,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(false);
       myAction->SetBeamEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
+      myAction->SetAmBeRootGenerator(false);
     }
     else if ( newValue == "gun")
     {
@@ -73,6 +74,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(false);
       myAction->SetBeamEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
+      myAction->SetAmBeRootGenerator(false);
     }
     else if ( newValue == "laser")   //T. Akiri: Addition of laser
     {
@@ -82,6 +84,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(true);
       myAction->SetBeamEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
+      myAction->SetAmBeRootGenerator(false);
     }
     else if ( newValue == "beam")
     {
@@ -91,6 +94,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(false);
       myAction->SetBeamEvtGenerator(true);
       myAction->SetGPSEvtGenerator(false);
+      myAction->SetAmBeRootGenerator(false);
     }
     else if ( newValue == "gps")
     {
@@ -100,8 +104,18 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(false);
       myAction->SetBeamEvtGenerator(false);
       myAction->SetGPSEvtGenerator(true);
+      myAction->SetAmBeRootGenerator(false);
     }
-  }
+    else if (newValue == "AmBe") {
+      myAction->SetAmBeRootGenerator(true);
+      myAction->SetMulineEvtGenerator(false);
+      myAction->SetGunEvtGenerator(false);
+      myAction->SetLaserEvtGenerator(false);
+      myAction->SetGPSEvtGenerator(false);
+      myAction->SetBeamEvtGenerator(false);
+      G4cout << "Primary generator set to external AmBe ROOT input." << G4endl;
+    }
+     }
 
   if( command == fileNameCmd )
   {
@@ -146,6 +160,8 @@ G4String WCSimPrimaryGeneratorMessenger::GetCurrentValue(G4UIcommand* command)
       { cv = "beam"; }
     else if(myAction->IsUsingGPSEvtGenerator())
       { cv = "gps"; }
+    else if(myAction->IsUsingAmBeRootGenerator())
+      { cv = "AmBe"; }
   }
   
   return cv;

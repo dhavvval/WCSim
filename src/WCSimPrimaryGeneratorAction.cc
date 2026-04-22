@@ -27,6 +27,7 @@
 #include "G4Navigator.hh"
 #include "G4TransportationManager.hh"
 #include "G4UImanager.hh"
+#include "G4RunManager.hh"
 
 // GENIE headers
 #ifndef NO_GENIE
@@ -64,7 +65,9 @@ inline int   atoi( const string& s ) {return std::atoi( s.c_str() );}
 
 WCSimPrimaryGeneratorAction::WCSimPrimaryGeneratorAction(
 					  WCSimDetectorConstruction* myDC)
-  :myDetector(myDC), loadNewPrimaries(true), inputdata(0), primariesDirectory(""), neutrinosDirectory(""), vectorFileName("")
+  : myDetector(myDC), loadNewPrimaries(true), inputdata(0), primariesDirectory(""), neutrinosDirectory(""), vectorFileName(""),useAmBeRootInput(false),
+amBeInputFileName(""), amBePositionOffset(0.,0.,0.), amBeReader(nullptr)
+
 {
   //T. Akiri: Initialize GPS to allow for the laser use 
   MyGPS = new G4GeneralParticleSource();
@@ -886,6 +889,93 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         }
       }
     }
+
+
+	else if (useAmBeRootInput){
+		if (!amBeReader) {
+			G4Exception("WCSimPrimaryGeneratorAction::GeneratePrimaries",
+						"AmBeReaderMissing",
+						FatalException,
+						"AmBe ROOT input mode is enabled, but no reader is available.");
+			return;
+		}
+
+		WCSimAmBeEvent inputEvent;
+		if (!amBeReader->NextEvent(inputEvent)) {
+			G4Exception("WCSimPrimaryGeneratorAction::GeneratePrimaries",
+						"AmBeEndOfFile",
+						RunMustBeAborted,
+						"No more events in AmBe ROOT input file.");
+			return;
+		}
+
+		G4cout << "WCSim AmBe input: reader entry " << amBeReader->GetCurrentEntry() - 1
+				<< ", EventId " << inputEvent.event_id
+				<< ", N particles " << inputEvent.particles.size()
+				<< G4endl;
+
+		for (std::size_t i = 0; i < inputEvent.particles.size(); ++i) {
+			const WCSimAmBeParticle& p = inputEvent.particles[i];
+			G4ThreeVector localPos(
+			p.position.X() * cm,
+			p.position.Y() * cm,
+			p.position.Z() * cm
+			);
+
+			G4ThreeVector globalPos = localPos + amBePositionOffset;
+
+			G4PrimaryVertex* vertex = new G4PrimaryVertex(
+			globalPos,
+			p.position.T() * ns
+			);
+			G4double t = p.position.T() * CLHEP::ns;
+
+			if (G4RunManager::GetRunManager()->GetVerboseLevel() > 1) {
+				G4cout << "[AmBe DEBUG] Particle " << i
+						<< " PDG=" << p.pdg
+						<< " proc=" << p.process
+						<< G4endl;
+
+				G4cout << "   pos (cm,ns): ("
+						<< globalPos.x()/cm << ", "
+						<< globalPos.y()/cm << ", "
+						<< globalPos.z()/cm << ", "
+						<< t << ")"
+						<< G4endl;
+
+				G4cout << "   mom (MeV): ("
+						<< p.momentum.X() << ", "
+						<< p.momentum.Y() << ", "
+						<< p.momentum.Z() << ", "
+						<< p.momentum.T() << ")"
+						<< G4endl;
+			}
+
+			G4ParticleDefinition* particleDef =
+			G4ParticleTable::GetParticleTable()->FindParticle(p.pdg);
+
+			if (!particleDef) {
+			G4cout << "Skipping unknown PDG code: " << p.pdg << G4endl;
+			continue;
+			}
+
+			G4PrimaryParticle* primary = new G4PrimaryParticle(
+			particleDef,
+			p.momentum.X() * CLHEP::MeV,
+			p.momentum.Y() * CLHEP::MeV,
+			p.momentum.Z() * CLHEP::MeV
+			);
+
+			vertex->SetPrimary(primary);
+			anEvent->AddPrimaryVertex(vertex);
+		}
+
+		int nprimaryvertices = anEvent->GetNumberOfPrimaryVertex();
+		SetNvtxs(nprimaryvertices);
+		for(int vi = 0; vi < nprimaryvertices && vi < MAX_N_PRIMARIES; vi++){
+			SetVtxs(vi, anEvent->GetPrimaryVertex(vi)->GetPosition());
+		}
+	}
 }
 
 void WCSimPrimaryGeneratorAction::SaveOptionsToOutput(WCSimRootOptions * wcopt)
@@ -1016,3 +1106,4 @@ void WCSimPrimaryGeneratorAction::LoadNewPrimaries(){
 	loadNewPrimaries=false;
 }
 
+B

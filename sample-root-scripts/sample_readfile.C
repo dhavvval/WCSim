@@ -125,6 +125,7 @@ void sample_readfile(char *filename=NULL, bool verbose=false)
     // Read the event from the tree into the WCSimRootEvent instance
     tree->GetEntry(ev);      
     wcsimrootevent = wcsimrootsuperevent->GetTrigger(0);
+    int nvtxs = wcsimrootevent->GetNvtxs();
     if(verbose){
       printf("********************************************************");
       printf("Event Number, Trigger Time [ns]: %d %d\n", wcsimrootevent->GetHeader()->GetEvtNum(),
@@ -132,9 +133,8 @@ void sample_readfile(char *filename=NULL, bool verbose=false)
       printf("Interaction Nuance Code: %d\n", wcsimrootevent->GetMode());
       printf("Number of Delayed Triggers (sub events): %d\n",
        wcsimrootsuperevent->GetNumberOfSubEvents());
-      
+
       // Print all primary source vertices (supports multi-source GPS)
-      int nvtxs = wcsimrootevent->GetNvtxs();
       printf("Number of primary vertices: %d\n", nvtxs);
       for(int vv=0; vv<nvtxs; vv++){
         printf("  Vertex %d location [cm]: %f %f %f (vol=%d)\n", vv,
@@ -144,9 +144,11 @@ void sample_readfile(char *filename=NULL, bool verbose=false)
           wcsimrootevent->GetVtxsvol(vv));
       }
     }
-    hvtx0->Fill(wcsimrootevent->GetVtxs(0,0));
-    hvtx1->Fill(wcsimrootevent->GetVtxs(0,1));
-    hvtx2->Fill(wcsimrootevent->GetVtxs(0,2));
+    if(nvtxs > 0){
+      hvtx0->Fill(wcsimrootevent->GetVtxs(0,0));
+      hvtx1->Fill(wcsimrootevent->GetVtxs(0,1));
+      hvtx2->Fill(wcsimrootevent->GetVtxs(0,2));
+    }
 
     if(verbose){
       printf("Index of muon in WCSimRootTracks %d\n", wcsimrootevent->GetJmu());

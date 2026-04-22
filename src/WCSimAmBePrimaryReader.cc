@@ -120,17 +120,30 @@ bool WCSimAmBePrimaryReader::SetupBranches() {
 
   ClearBranchPointers();
 
-  fTree->SetBranchAddress("Rank", &fbranchEmergingRank);
-  fTree->SetBranchAddress("Thread", &fbranchEmergingThreadId);
-  fTree->SetBranchAddress("EventId", &fbranchEmergingEventId);
-  fTree->SetBranchAddress("TrackId", &fbranchEmergingId);
-  fTree->SetBranchAddress("ParentId", &fbranchEmergingParentId);
-  fTree->SetBranchAddress("PDG", &fbranchEmergingPDG);
-  fTree->SetBranchAddress("Vertex", &fbranchEmergingPos);
-  fTree->SetBranchAddress("Momentum", &fbranchEmergingP);
-  fTree->SetBranchAddress("Process", &fbranchEmergingProcess);
+  auto checkBranch = [this](const char* name, Int_t status) -> bool {
+    if (status < 0) {
+      std::cerr << "WCSimAmBePrimaryReader::SetupBranches(): "
+                << "SetBranchAddress failed (status=" << status << ") "
+                << "for branch \"" << name << "\" "
+                << "in tree \"" << fTree->GetName() << "\" "
+                << "from file \"" << fFileName << "\"." << std::endl;
+      return false;
+    }
+    return true;
+  };
 
-  return true;
+  bool ok = true;
+  ok &= checkBranch("Rank",     fTree->SetBranchAddress("Rank",     &fbranchEmergingRank));
+  ok &= checkBranch("Thread",   fTree->SetBranchAddress("Thread",   &fbranchEmergingThreadId));
+  ok &= checkBranch("EventId",  fTree->SetBranchAddress("EventId",  &fbranchEmergingEventId));
+  ok &= checkBranch("TrackId",  fTree->SetBranchAddress("TrackId",  &fbranchEmergingId));
+  ok &= checkBranch("ParentId", fTree->SetBranchAddress("ParentId", &fbranchEmergingParentId));
+  ok &= checkBranch("PDG",      fTree->SetBranchAddress("PDG",      &fbranchEmergingPDG));
+  ok &= checkBranch("Vertex",   fTree->SetBranchAddress("Vertex",   &fbranchEmergingPos));
+  ok &= checkBranch("Momentum", fTree->SetBranchAddress("Momentum", &fbranchEmergingP));
+  ok &= checkBranch("Process",  fTree->SetBranchAddress("Process",  &fbranchEmergingProcess));
+
+  return ok;
 }
 
 void WCSimAmBePrimaryReader::ClearBranchPointers() {

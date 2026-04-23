@@ -150,21 +150,18 @@ private:
   Float_t fTruetime;
   Int_t   fPrimaryParentID;
   Int_t  fDirectParentID;
-  Int_t  fDirectParentPDG;
   Bool_t fIsNoise;
 
 public:
   WCSimRootCherenkovHitTime() : fTruetime(0), fPrimaryParentID(-1), fDirectParentID(-1), fIsNoise(false) {}
   WCSimRootCherenkovHitTime(Float_t truetime,
 			    Int_t   primaryParentID,
-			    Int_t   directParentID,
-			    Int_t   directParentPDG);
+			    Int_t   directParentID);
   virtual ~WCSimRootCherenkovHitTime() { }
 
   Float_t   GetTruetime() { return fTruetime;}
   Int_t     GetPrimaryParentID() { return fPrimaryParentID;}
   Int_t     GetDirectParentID() { return fDirectParentID;}
-  Int_t     GetDirectParentPDG() { return fDirectParentPDG;}
   Bool_t    GetIsNoise() { return fIsNoise;}
 
   void SetIsNoise(Bool_t noise) { fIsNoise = noise; }
@@ -521,8 +518,7 @@ public:
   WCSimRootCherenkovHit   *AddCherenkovHit(Int_t                tubeID,
 					  std::vector<Float_t> truetime,
 					  std::vector<Int_t>   primParID,
-					  std::vector<Int_t>   directParID,
-					  std::vector<Int_t>   directParPDG);
+					  std::vector<Int_t>   directParID);
   TClonesArray        *GetCherenkovHits() const {return fCherenkovHits;}
   TClonesArray        *GetCherenkovHitTimes() const {return fCherenkovHitTimes;}
 

@@ -244,11 +244,14 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
       G4double energyDeposition  = aStep->GetTotalEnergyDeposit();
       G4int directParentID = aStep->GetTrack()->GetParentID();
 
-      // Get the direct parent PDG from track information
-      G4int directParentPDG = 0;
-      if (trackinfo) {
-        directParentPDG = trackinfo->GetParentPdg();
-      }
+      // DEBUG: Print parent IDs for first few hits
+      static int hitDebugCount = 0;
+      if(hitDebugCount < 10) {
+        G4cout << "DEBUG WCSimWCSD: Hit #" << hitDebugCount 
+               << " PrimaryParentID=" << primParentID 
+               << " DirectParentID=" << directParentID 
+              << " TrackID=" << aStep->GetTrack()->GetTrackID() << G4endl;
+        hitDebugCount++;
 
 
       
@@ -320,7 +323,6 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPe(hitTime);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPrimaryParentID(primParentID);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddDirectParentID(directParentID);
-        (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddDirectParentPDG(directParentPDG);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddHitPos(worldPosition);
         if(not isPMT){
           (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddStripPosition(localPosition);
@@ -329,7 +331,6 @@ G4bool WCSimWCSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPe(hitTime);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddPrimaryParentID(primParentID);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddDirectParentID(directParentID);
-        (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddDirectParentPDG(directParentPDG);
         (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddHitPos(worldPosition);
         if(not isPMT){
           (*hitsCollection)[PMTHitMap[replicaNumber]-1]->AddStripPosition(localPosition);

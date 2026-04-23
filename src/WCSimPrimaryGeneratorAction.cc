@@ -842,23 +842,26 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     {
       MyGPS->GeneratePrimaryVertex(anEvent);
       
-      G4ThreeVector P   =anEvent->GetPrimaryVertex()->GetPrimary()->GetMomentum();
-      G4ThreeVector vtx =anEvent->GetPrimaryVertex()->GetPosition();
-      G4double m        =anEvent->GetPrimaryVertex()->GetPrimary()->GetMass(); // this is rest mass
-      G4int pdg         =anEvent->GetPrimaryVertex()->GetPrimary()->GetPDGcode();
-      
-      G4ThreeVector dir  = P.unit();
-      G4double E         = std::sqrt((P.dot(P))+(m*m));
-      
-      SetVtx(vtx);
+      // Store info from vertex 0 for backward-compatible single-vertex accessors
+      G4ThreeVector P   = anEvent->GetPrimaryVertex()->GetPrimary()->GetMomentum();
+      G4ThreeVector vtx = anEvent->GetPrimaryVertex()->GetPosition();
+      G4double m        = anEvent->GetPrimaryVertex()->GetPrimary()->GetMass();
+      G4int pdg         = anEvent->GetPrimaryVertex()->GetPrimary()->GetPDGcode();
+      G4ThreeVector dir = P.unit();
+      G4double E        = std::sqrt((P.dot(P))+(m*m));
       SetBeamEnergy(E);
       SetBeamDir(dir);
       SetBeamPDG(pdg);
-            
-      double tote = anEvent->GetPrimaryVertex()->GetPrimary()->GetTotalEnergy();
-      double ke = anEvent->GetPrimaryVertex()->GetPrimary()->GetKineticEnergy();
-      
+
+      // Store all primary vertices so GetNvtxs()/GetVtxs(n,i) work for multi-source GPS
       int nprimaryvertices = anEvent->GetNumberOfPrimaryVertex();
+      SetNvtxs(nprimaryvertices);
+      for(int vi = 0; vi < nprimaryvertices && vi < MAX_N_PRIMARIES; vi++){
+        SetVtxs(vi, anEvent->GetPrimaryVertex(vi)->GetPosition());
+      }
+
+      double tote = anEvent->GetPrimaryVertex()->GetPrimary()->GetTotalEnergy();
+      double ke   = anEvent->GetPrimaryVertex()->GetPrimary()->GetKineticEnergy();
       G4cout<<"Generating event with "<<nprimaryvertices<<" primary vertices"<<G4endl;
       for(int evtvtxi=0; evtvtxi<nprimaryvertices; evtvtxi++){
         G4PrimaryVertex* thevertex = anEvent->GetPrimaryVertex(evtvtxi);

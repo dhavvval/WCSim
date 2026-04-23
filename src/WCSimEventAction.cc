@@ -1646,19 +1646,23 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
     std::vector<float> truetime, smeartime;
     std::vector<int>   primaryParentID;
     std::vector<int>   directParentID;
+    std::vector<int>   directParentPDG;
     double hit_time_smear, hit_time_true;
     int hit_parentid;
     int hit_directparentid;
+    int hit_directparentpdg;
     //loop over the DigitsCollection
     for(int idigi = 0; idigi < WCDC_hits->entries(); idigi++) {
       int digi_tubeid = (*WCDC_hits)[idigi]->GetTubeID();
       for(G4int id = 0; id < (*WCDC_hits)[idigi]->GetTotalPe(); id++){
 	hit_time_true  = (*WCDC_hits)[idigi]->GetPreSmearTime(id);
 	hit_parentid = (*WCDC_hits)[idigi]->GetPrimaryParentID(id);
-  hit_directparentid = (*WCDC_hits)[idigi]->GetDirectParentID(id);
+	hit_directparentid = (*WCDC_hits)[idigi]->GetDirectParentID(id);
+	hit_directparentpdg = (*WCDC_hits)[idigi]->GetDirectParentPDG(id);
 	truetime.push_back(hit_time_true);
 	primaryParentID.push_back(hit_parentid);
-  directParentID.push_back(hit_directparentid);
+	directParentID.push_back(hit_directparentid);
+	directParentPDG.push_back(hit_directparentpdg);
 #ifdef _SAVE_RAW_HITS_VERBOSE
 	hit_time_smear = (*WCDC_hits)[idigi]->GetTime(id);
 	smeartime.push_back(hit_time_smear);
@@ -1679,12 +1683,14 @@ void WCSimEventAction::FillRootEvent(G4int event_id,
 #endif
       wcsimrootevent->AddCherenkovHit(digi_tubeid,
 				      truetime,
-              primaryParentID,
-              directParentID);
+				      primaryParentID,
+				      directParentID,
+				      directParentPDG);
       smeartime.clear();
       truetime.clear();
       primaryParentID.clear();
       directParentID.clear();
+      directParentPDG.clear();
     }//idigi
   }//if(WCDC_hits)
 #endif //_SAVE_RAW_HITS

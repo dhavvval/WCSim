@@ -69,6 +69,9 @@ bool WCSimAmBePrimaryReader::Open(const std::string& filename,
 }
 
 void WCSimAmBePrimaryReader::Close() {
+  if (fTree) {
+    fTree->ResetBranchAddresses();
+  }
   ClearBranchPointers();
 
   if (fFile) {

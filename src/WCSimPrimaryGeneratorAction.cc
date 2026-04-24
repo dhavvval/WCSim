@@ -29,6 +29,7 @@
 #include "G4Navigator.hh"
 #include "G4TransportationManager.hh"
 #include "G4UImanager.hh"
+#include "G4RunManager.hh"
 
 // GENIE headers
 #ifndef NO_GENIE
@@ -67,7 +68,7 @@ inline int   atoi( const string& s ) {return std::atoi( s.c_str() );}
 WCSimPrimaryGeneratorAction::WCSimPrimaryGeneratorAction(
 					  WCSimDetectorConstruction* myDC)
   :myDetector(myDC), loadNewPrimaries(true), inputdata(0), primariesDirectory(""), neutrinosDirectory(""), vectorFileName(""),useAmBeRootInput(false),
-amBeInputFileName(""), amBePositionOffset(0.,0.,0.)
+amBeInputFileName(""), amBePositionOffset(0.,0.,0.), amBeReader(nullptr)
 {
   //T. Akiri: Initialize GPS to allow for the laser use 
   MyGPS = new G4GeneralParticleSource();
@@ -936,26 +937,26 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 			);
 			G4double t = p.position.T() * CLHEP::ns;
 
+			if (G4RunManager::GetRunManager()->GetVerboseLevel() > 1) {
+				G4cout << "[AmBe DEBUG] Particle " << i
+						<< " PDG=" << p.pdg
+						<< " proc=" << p.process
+						<< G4endl;
 
-			// DEBUG MESSAGE
-			G4cout << "[AmBe DEBUG] Particle " << i
-					<< " PDG=" << p.pdg
-					<< " proc=" << p.process
-					<< G4endl;
+				G4cout << "   pos (cm,ns): ("
+						<< globalPos.x()/cm << ", "
+						<< globalPos.y()/cm << ", "
+						<< globalPos.z()/cm << ", "
+						<< t << ")"
+						<< G4endl;
 
-			G4cout << "   pos (cm,ns): ("
-					<< globalPos.x()/cm << ", "
-					<< globalPos.y()/cm << ", "
-					<< globalPos.z()/cm << ", "
-					<< t << ")"
-					<< G4endl;
-
-			G4cout << "   mom (MeV): ("
-					<< p.momentum.X() << ", "
-					<< p.momentum.Y() << ", "
-					<< p.momentum.Z() << ", "
-					<< p.momentum.T() << ")"
-					<< G4endl;
+				G4cout << "   mom (MeV): ("
+						<< p.momentum.X() << ", "
+						<< p.momentum.Y() << ", "
+						<< p.momentum.Z() << ", "
+						<< p.momentum.T() << ")"
+						<< G4endl;
+			}
 
 			G4ParticleDefinition* particleDef =
 			G4ParticleTable::GetParticleTable()->FindParticle(p.pdg);
@@ -974,6 +975,12 @@ void WCSimPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 			vertex->SetPrimary(primary);
 			anEvent->AddPrimaryVertex(vertex);
+		}
+
+		int nprimaryvertices = anEvent->GetNumberOfPrimaryVertex();
+		SetNvtxs(nprimaryvertices);
+		for(int vi = 0; vi < nprimaryvertices && vi < MAX_N_PRIMARIES; vi++){
+			SetVtxs(vi, anEvent->GetPrimaryVertex(vi)->GetPosition());
 		}
 	}
 }

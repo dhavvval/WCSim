@@ -41,6 +41,11 @@ WCSimDetectorConstruction::WCSimDetectorConstruction(G4int DetConfig,WCSimTuning
 
   debugMode = false;
 
+  // --- ANNIE PMT tilt ----------
+  anniePMTTiltEnabled = true;
+  anniePMTTiltAngle = -53.*deg;
+  anniePMTTiltShift = 13.9*cm;
+
   myConfiguration = DetConfig;
 
   //-----------------------------------------------------

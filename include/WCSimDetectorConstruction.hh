@@ -416,6 +416,11 @@ private:
 
   // WC geometry parameters
 
+  //--------- ANNIE PMT tilt options ----------------------
+  G4bool anniePMTTiltEnabled;
+  G4double anniePMTTiltAngle;
+  G4double anniePMTTiltShift;
+
   G4double WCPMTRadius;       // ⚠
   G4double WCPMTExposeHeight; // ⚠
   G4double WCBarrelPMTOffset;
@@ -656,6 +661,15 @@ private:
   G4String GetMRDCollectionName(){return WCMRDCollectionName;}
   G4String GetFACCCollectionName(){return WCFACCCollectionName;}
   G4bool GetIsANNIE(){return isANNIE;}
+
+  // ---------- ANNIE PMT tilt ------------
+  void SetANNIEPMTTiltEnabled(G4bool val){anniePMTTiltEnabled = val;}
+  G4bool GetANNIEPMTTiltEnabled() const {return anniePMTTiltEnabled;}
+  void SetANNIEPMTTiltAngle(G4double val){anniePMTTiltAngle = val;}
+  G4double GetANNIEPMTTiltAngle() const {return anniePMTTiltAngle;}
+  void SetANNIEPMTTiltShift(G4double val){anniePMTTiltShift = val;}
+  G4double GetANNIEPMTTiltShift() const {return anniePMTTiltShift;}
+
 //  private:
 
   G4bool isANNIE;

@@ -14,6 +14,23 @@ WCSimDetectorMessenger::WCSimDetectorMessenger(WCSimDetectorConstruction* WCSimD
   WCSimDir->SetGuidance("Commands to change the geometry of the simulation");
 
 
+  ANNIEPMTTiltEnabled = new G4UIcmdWithABool("/WCSim/ANNIE/PMTTilt/enabled", this);
+  ANNIEPMTTiltEnabled->SetGuidance("Enable fixed ANNIEp2v7 PMT tilt placement.");
+  ANNIEPMTTiltEnabled->SetParameterName("ANNIEPMTTiltEnabled", false);
+  ANNIEPMTTiltEnabled->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  ANNIEPMTTiltAngle = new G4UIcmdWithADoubleAndUnit("/WCSim/ANNIE/PMTTilt/angle", this);
+  ANNIEPMTTiltAngle->SetGuidance("Set the fixed ANNIEp2v7 tilted PMT rotation angle.");
+  ANNIEPMTTiltAngle->SetParameterName("ANNIEPMTTiltAngle", false);
+  ANNIEPMTTiltAngle->SetDefaultUnit("deg");
+  ANNIEPMTTiltAngle->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  ANNIEPMTTiltShift = new G4UIcmdWithADoubleAndUnit("/WCSim/ANNIE/PMTTilt/shift", this);
+  ANNIEPMTTiltShift->SetGuidance("Set the fixed ANNIEp2v7 tilted PMT position shift.");
+  ANNIEPMTTiltShift->SetParameterName("ANNIEPMTTiltShift", false);
+  ANNIEPMTTiltShift->SetDefaultUnit("cm");
+  ANNIEPMTTiltShift->AvailableForStates(G4State_PreInit, G4State_Idle);
+
   PMTConfig = new G4UIcmdWithAString("/WCSim/WCgeom",this);
   PMTConfig->SetGuidance("Set the geometry configuration for the WC.");
   PMTConfig->SetGuidance("Available options are:\n"
@@ -208,6 +225,9 @@ WCSimDetectorMessenger::~WCSimDetectorMessenger()
   delete WCSimDir;
   
   delete WCConstruct;
+  delete ANNIEPMTTiltEnabled;
+  delete ANNIEPMTTiltAngle;
+  delete ANNIEPMTTiltShift;
 }
 
 void WCSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
@@ -263,7 +283,25 @@ void WCSimDetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 		  G4cout << "That geometry choice not defined!" << G4endl;
 		}
 	}
-  
+
+	if(command == ANNIEPMTTiltEnabled){
+		G4bool enabled = ANNIEPMTTiltEnabled->GetNewBoolValue(newValue);
+		WCSimDetector->SetANNIEPMTTiltEnabled(enabled);
+		G4cout << "Set ANNIE PMT tilt enabled to " << enabled << G4endl;
+	}
+
+	if(command == ANNIEPMTTiltAngle){
+		G4double angle = ANNIEPMTTiltAngle->GetNewDoubleValue(newValue);
+		WCSimDetector->SetANNIEPMTTiltAngle(angle);
+		G4cout << "Set ANNIE PMT tilt angle to " << angle/deg << " deg" << G4endl;
+	}
+
+	if(command == ANNIEPMTTiltShift){
+		G4double shift = ANNIEPMTTiltShift->GetNewDoubleValue(newValue);
+		WCSimDetector->SetANNIEPMTTiltShift(shift);
+		G4cout << "Set ANNIE PMT tilt shift to " << shift/cm << " cm" << G4endl;
+	}
+
 	if (command == SavePi0){
 	  G4cout << "Set the flag for saving pi0 info " << newValue << G4endl;
 	  if (newValue=="true"){

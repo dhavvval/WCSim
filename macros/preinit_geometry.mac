@@ -1,0 +1,7 @@
+# Geometry options that must be applied before G4 kernel initialization.
+
+# ANNIEp2v7 fixed PMT tilt settings. These commands affect geometry
+# construction, so set them before the G4 kernel is initialized.
+/WCSim/ANNIE/PMTTilt/enabled true
+/WCSim/ANNIE/PMTTilt/angle -53 deg
+/WCSim/ANNIE/PMTTilt/shift 13.9 cm

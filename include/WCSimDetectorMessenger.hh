@@ -52,6 +52,9 @@ class WCSimDetectorMessenger: public G4UImessenger
   G4UIcmdWithAString* distortionCmd;
   G4UIcmdWithoutParameter* WCConstruct;
 
+  G4UIcmdWithABool* ANNIEPMTTiltEnabled;
+  G4UIcmdWithADoubleAndUnit* ANNIEPMTTiltAngle;
+  G4UIcmdWithADoubleAndUnit* ANNIEPMTTiltShift;
 };
 
 #endif

@@ -87,13 +87,8 @@ void WCSimRootOptions::PopulateFileVersion()
     std::cout<<"Current WCSim commit hash is: "<<CommitHash<<std::endl;
   } else {
     std::cerr<<"Unable to read WCSim commit hash\n"
-             <<"Please ensure you built WCSim from a git repository"<<std::endl;
-    //       <<"If working on the grid fetch the minimum code with e.g.\n"
-    //       <<"`git clone --depth 1 --single-branch -b annie https://github.com/ANNIEsoft/WCSim.git`"<<std::endl;
-    // Hmm, this could cause grid jobs to fail if someone got their code as a zip file,
-    // but if you're running on the grid it's probably all the more important your outputs
-    // are properly git tagged. So we will fail.
-    assert(false);
+             <<"Continuing without commit hash (grid job or non-git build)"<<std::endl;
+    CommitHash = "unknown";
   }
   
   // we can also warn if there are any outstanding changes, as in this case

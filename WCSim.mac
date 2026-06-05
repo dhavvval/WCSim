@@ -370,6 +370,31 @@
 ## disable adjusting NDigits trigger for average occupancy, since noise is disabled for Bonsai
 #/DAQ/TriggerNDigits/AdjustForNoise false
 
+## Thermal neutron + muon from same vertex (for clustering studies)
+##################################################################
+#/mygen/generator gps
+
+## --- Source 1: thermal neutron ---
+#/gps/source/intensity 1
+#/gps/particle neutron
+#/gps/pos/type Point
+#/gps/pos/centre 0 -14.46 168.1 cm   # centre of ANNIE tank
+#/gps/ang/type iso                    # isotropic direction
+#/gps/energy 0.025 eV                 # thermal neutron energy
+#/gps/ene/type Mono
+
+## --- Source 2: muon ---
+#/gps/source/add 1
+#/gps/particle mu-
+#/gps/pos/type Point
+#/gps/pos/centre 0 -14.46 168.1 cm   # same centre point
+#/gps/ang/type iso                    # isotropic, or use beam1d if you want a beam direction
+#/gps/energy 100 MeV                  # adjust to your needs
+#/gps/ene/type Mono
+
+## Fire BOTH particles every event (not randomly alternating)
+#/gps/source/multiplevertex true
+
 ## Isotropic muons with linear spread of energies, within the tank, for E reconstruction
 ########################################################################################
 ## isotropic distribution may be better for energy reconstruction tests?
@@ -459,10 +484,10 @@
 #/WCSimIO/RootFile ANNIEtest_MRD_muon_sample  # for MRD range vs energy estimation
 #/WCSimIO/RootFile wcsim_Muon_Tank_Sample_killed # for measuring # digits vs energy loss in tank
 
-/run/beamOn 20
+/run/beamOn 1000
 # should run 10000 events for bonsai
 
-#exit
+exit
 
 # for some reason this command works on my laptop and on the grid, but is not found on gpvm and aborts
 # execution of the macro. Stick it at the end - if it aborts, nothing else to do.

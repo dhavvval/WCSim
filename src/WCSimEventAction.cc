@@ -31,6 +31,7 @@
 #include "G4UIcmdWith3VectorAndUnit.hh"
 
 #include <set>
+#include <map>
 #include <iomanip>
 #include <string>
 #include <vector>
@@ -1063,7 +1064,15 @@ void WCSimEventAction::EndOfEventAction(const G4Event* evt)
    // G4cout << "MRDyHC: " << &MRDyHC << G4endl;
    
   jhfNtuple.npar = npar;
-  
+
+  // Mark the tracks behind detected light before FillRootEvent writes the track list.
+  // Done here rather than inside FillRootEvent because that runs three times
+  // (tank/mrd/facc) over the same trajectory container, and this only needs to happen
+  // once. Safe to do now: WCSimWCPMT::Digitize() ran further up in this function, so the
+  // raw PMT digits already carry their DirectParentIDs.
+  if (GetRunAction()->GetSaveTracksOnDemand())
+    ForceSaveHitAncestry(trajectoryContainer, WCDC_hits);
+
   FillRootEvent(event_id,
 		jhfNtuple,
 		trajectoryContainer,
@@ -1251,7 +1260,71 @@ G4int WCSimEventAction::WCSimEventFindVertexVolume(G4ThreeVector vtx){
   return -1;
 }
 
-void WCSimEventAction::FillRootEvent(G4int event_id, 
+void WCSimEventAction::ForceSaveHitAncestry(G4TrajectoryContainer* TC,
+                                            WCSimWCDigitsCollection* WCDC_hits)
+{
+  if (!TC || !WCDC_hits) return;
+
+  // Index every stored trajectory by track ID. All non-optical-photon tracks are in
+  // here regardless of their save flag, because PreUserTrackingAction calls
+  // SetStoreTrajectory(true) unconditionally for them.
+  std::map<G4int, WCSimTrajectory*> trajByID;
+  for (size_t i = 0; i < TC->entries(); i++) {
+    WCSimTrajectory* trj = (WCSimTrajectory*)((*TC)[i]);
+    if (trj) trajByID[trj->GetTrackID()] = trj;
+  }
+
+  // Collect the track IDs that detected photons actually point at. -1 is the
+  // dark-noise sentinel set by WCSimWCAddDarkNoise and has no parent track.
+  std::set<G4int> referenced;
+  for (G4int idigi = 0; idigi < WCDC_hits->entries(); idigi++) {
+    WCSimWCDigi* digi = (*WCDC_hits)[idigi];
+    if (!digi) continue;
+    for (G4int ip = 0; ip < digi->GetTotalPe(); ip++) {
+      G4int parentID = digi->GetDirectParentID(ip);
+      if (parentID > 0) referenced.insert(parentID);
+    }
+  }
+
+  // Walk each referenced track up towards its primary, marking the whole chain so the
+  // ancestry is never broken part-way. `visited` is the only stop condition besides
+  // running out of parents -- deliberately NOT "already has SaveFlag set", because a
+  // track can be flagged by WCSimTrackingAction while its own ancestors are not, and
+  // stopping there would leave gaps. Shared chains collapse via `visited`.
+  std::set<G4int> visited;
+  G4int nNewlySaved = 0;
+  for (std::set<G4int>::const_iterator it = referenced.begin(); it != referenced.end(); ++it) {
+    G4int currentID = *it;
+    while (currentID > 0 && visited.count(currentID) == 0) {
+      visited.insert(currentID);
+      std::map<G4int, WCSimTrajectory*>::iterator found = trajByID.find(currentID);
+      if (found == trajByID.end()) break;  // no stored trajectory; nothing to mark
+      if (!found->second->GetSaveFlag()) {
+        found->second->SetSaveFlag(true);
+        nNewlySaved++;
+      }
+      currentID = found->second->GetParentID();
+    }
+  }
+
+  // Report on the first few events. An empty referenced set would silently disable this
+  // whole mechanism -- which is indistinguishable from "the fix didn't help" in the
+  // output -- so make that case loud rather than invisible.
+  static G4int reportCount = 0;
+  if (reportCount < 5) {
+    G4cout << "WCSimEventAction::ForceSaveHitAncestry: "
+           << referenced.size() << " track IDs referenced by "
+           << WCDC_hits->entries() << " PMT digits; "
+           << nNewlySaved << " newly marked for saving, "
+           << visited.size() << " visited" << G4endl;
+    if (referenced.empty())
+      G4cout << "WCSimEventAction::ForceSaveHitAncestry: WARNING - no direct parent IDs "
+             << "on the raw PMT digits. Save-on-demand is having no effect." << G4endl;
+    reportCount++;
+  }
+}
+
+void WCSimEventAction::FillRootEvent(G4int event_id,
 				     const struct ntupleStruct& jhfNtuple,
 				     G4TrajectoryContainer* TC,
 				     WCSimWCDigitsCollection* WCDC_hits,

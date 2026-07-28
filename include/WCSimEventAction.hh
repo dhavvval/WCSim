@@ -55,6 +55,20 @@ public:
   void CreateNewLAPPDFile();
 
 private:
+  /// Force-save every track referenced as the direct parent of a detected photon,
+  /// together with that track's whole ancestor chain.
+  ///
+  /// A hit's direct parent ID is stamped from the true Geant4 track (WCSimWCSD.cc)
+  /// whether or not WCSimTrackingAction decided to save it, so without this the
+  /// per-hit DirectParentID frequently points at a track that is absent from the
+  /// output and the particle behind the charge deposit cannot be identified.
+  /// Every non-optical-photon track already has a WCSimTrajectory in the container
+  /// (PreUserTrackingAction calls SetStoreTrajectory(true) unconditionally); the
+  /// save flag only decides whether it gets written. So the tracks we need are
+  /// already there to be marked.
+  void ForceSaveHitAncestry(G4TrajectoryContainer* TC,
+                            WCSimWCDigitsCollection* WCDC_hits);
+
   G4int WCSimEventFindStartingVolume( G4ThreeVector vtx);
   G4int WCSimEventFindStoppingVolume( G4String stopVolumeName);
   G4int WCSimEventFindVertexVolume(G4ThreeVector vtx);

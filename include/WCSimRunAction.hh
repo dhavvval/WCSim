@@ -68,7 +68,17 @@ public:
   void CloseOutputFile();
   void CreateNewOutputFile();
 
+  // When true, WCSimEventAction force-saves every track that produced a detected
+  // photon, plus that track's ancestor chain, so the per-hit DirectParentID always
+  // resolves to a real track in the output. Set from the macro via
+  // /WCSimIO/SaveTracksOnDemand; default true. Turning it off reproduces the
+  // historical save behaviour, which is what the A/B comparison needs.
+  void SetSaveTracksOnDemand(G4bool choice) { saveTracksOnDemand = choice; }
+  G4bool GetSaveTracksOnDemand() const { return saveTracksOnDemand; }
+
 private:
+  G4bool saveTracksOnDemand = true;
+
   // MFechner : set by the messenger
   std::string RootFileName;
   std::string RootFileNameBase;

@@ -20,7 +20,9 @@ WCSimTrackingAction::WCSimTrackingAction(){
   ProcessList.insert("nCapture");
   ProcessList.insert("MuonMinusCaptureAtRest");
   ProcessList.insert("muMinusCaptureAtRest");  // which syntax is correct?
-  //ProcessList.insert("conv");
+  // NOTE: "compt"/"conv"/"phot" are deliberately NOT in ProcessList — membership there
+  // saves unconditionally with no energy cut. They're handled instead by an energy-gated
+  // condition in PostUserTrackingAction so sub-Cherenkov-threshold electrons aren't saved.
   ParticleList.insert(0);    // geantino
   ParticleList.insert(111);  // pi0
   ParticleList.insert(211);  // pion+
@@ -119,12 +121,25 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
       ( thispdg==22 && aTrack->GetTotalEnergy()>50.0*MeV ) ||     // 50 MeV? 1MeV? what threshold?
       ( thispdg==22 && anInfo->GetParentPdg()==111 )              // gamma from a Pi0 decay
     ){*/		//-->this is currently the default
-    if( aTrack->GetParentID()==0 || 
+    if( aTrack->GetParentID()==0 ||
       ((creatorProcess!=0) && ProcessList.count(creatorProcess->GetProcessName())) ||
-      (ParticleList.count(aTrack->GetDefinition()->GetPDGEncoding())) || 
+      (ParticleList.count(aTrack->GetDefinition()->GetPDGEncoding())) ||
       (aTrack->GetDefinition()->GetPDGEncoding()==22 && aTrack->GetTotalEnergy() > 1.0*MeV) ||
       (creatorProcess->GetProcessName() == "muMinusCaptureAtRest" && aTrack->GetTotalEnergy() > 1.0*MeV)||
-      ( thispdg==22 && anInfo->GetParentPdg()==111) || anInfo->GetHasNeutronAncestor() ){	//---> try this out to get lower energetic gammas
+      ( thispdg==22 && anInfo->GetParentPdg()==111) || anInfo->GetHasNeutronAncestor() ||
+      // Save Compton/pair-production/photoelectric/ionization electrons above the Cherenkov
+      // threshold in water (~0.8 MeV total energy) so BackTracker's ancestor walk has a track
+      // to skip to, even outside a neutron lineage (see generalize-background-traceback.md,
+      // section 10). Ionization (eIoni/hIoni/ionIoni) delta rays are the largest remaining
+      // untraced source -- far more numerous along any charged track than compt/conv/phot.
+      ( (thispdg==11 || thispdg==-11) && creatorProcess!=0 &&
+        (creatorProcess->GetProcessName()=="compt" ||
+         creatorProcess->GetProcessName()=="conv"  ||
+         creatorProcess->GetProcessName()=="phot" ||
+         creatorProcess->GetProcessName()=="eIoni" ||
+         creatorProcess->GetProcessName()=="hIoni" ||
+         creatorProcess->GetProcessName()=="ionIoni") &&
+        aTrack->GetTotalEnergy() > 0.8*MeV ) ){	//---> try this out to get lower energetic gammas
     anInfo->WillBeSaved(true);
   } else {
     anInfo->WillBeSaved(false);

@@ -149,9 +149,8 @@ private:
   // See jhfNtuple.h for the meaning of these data members:
   Float_t fTruetime;
   Int_t   fPrimaryParentID;
-  Int_t  fDirectParentID;
-  Int_t  fDirectParentPDG;
-  Bool_t fIsNoise;
+  Int_t   fDirectParentID;
+  Bool_t  fIsNoise;  // Explicit dark noise flag: true if hit from WCSimWCAddDarkNoise
 
 public:
   WCSimRootCherenkovHitTime() : fTruetime(0), fPrimaryParentID(-1), fDirectParentID(-1), fIsNoise(false) {}
@@ -164,7 +163,6 @@ public:
   Float_t   GetTruetime() { return fTruetime;}
   Int_t     GetPrimaryParentID() { return fPrimaryParentID;}
   Int_t     GetDirectParentID() { return fDirectParentID;}
-  Int_t     GetDirectParentPDG() { return fDirectParentPDG;}
   Bool_t    GetIsNoise() { return fIsNoise;}
 
   void SetIsNoise(Bool_t noise) { fIsNoise = noise; }

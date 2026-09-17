@@ -501,8 +501,8 @@ WCSimRootCherenkovHit *WCSimRootTrigger::AddCherenkovHit(Int_t tubeID,std::vecto
     fCherenkovHitCounter++;
 
     WCSimRootCherenkovHitTime *cherenkovhittime =
-      new(cherenkovhittimes[fNcherenkovhittimes++]) WCSimRootCherenkovHitTime(truetime[i],primParID[i], directParentID[i], directParentPDG[i]);
-    cherenkovhittime->SetIsNoise(primParID[i] < 0);
+      new(cherenkovhittimes[fNcherenkovhittimes++]) WCSimRootCherenkovHitTime(truetime[i],primParID[i], directParentID[i]);
+    cherenkovhittime->SetIsNoise(primParID[i] < 0);  // dark noise has primParID = -1
   }
 
   Int_t WC_Index[2];
@@ -536,8 +536,7 @@ WCSimRootCherenkovHitTime::WCSimRootCherenkovHitTime(Float_t truetime,
     fTruetime        = truetime;
     fPrimaryParentID = primParID;
     fDirectParentID = directParID;
-    fDirectParentPDG = directParPDG;
-    fIsNoise = false;
+    fIsNoise = false;  // Default: true signal hits (dark noise explicitly marked elsewhere)
 }
 
 //_____________________________________________________________________________

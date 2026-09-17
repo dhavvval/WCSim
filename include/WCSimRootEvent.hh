@@ -156,7 +156,8 @@ public:
   WCSimRootCherenkovHitTime() : fTruetime(0), fPrimaryParentID(-1), fDirectParentID(-1), fIsNoise(false) {}
   WCSimRootCherenkovHitTime(Float_t truetime,
 			    Int_t   primaryParentID,
-			    Int_t   directParentID);
+			    Int_t   directParentID,
+			    Int_t   directParentPDG);
   virtual ~WCSimRootCherenkovHitTime() { }
 
   Float_t   GetTruetime() { return fTruetime;}
@@ -517,8 +518,9 @@ public:
 
   WCSimRootCherenkovHit   *AddCherenkovHit(Int_t                tubeID,
 					  std::vector<Float_t> truetime,
-            std::vector<Int_t>   primParID,
-					  std::vector<Int_t>   directParID);
+					  std::vector<Int_t>   primParID,
+					  std::vector<Int_t>   directParID,
+					  std::vector<Int_t>   directParPDG);
   TClonesArray        *GetCherenkovHits() const {return fCherenkovHits;}
   TClonesArray        *GetCherenkovHitTimes() const {return fCherenkovHitTimes;}
 

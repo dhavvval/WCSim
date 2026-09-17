@@ -4,6 +4,9 @@
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithAnInteger.hh"
 #include "G4ios.hh"
+#include "G4UIcmdWith3VectorAndUnit.hh"
+#include "G4ThreeVector.hh"
+#include "G4SystemOfUnits.hh"
 
 WCSimPrimaryGeneratorMessenger::WCSimPrimaryGeneratorMessenger(WCSimPrimaryGeneratorAction* pointerToAction)
 :myAction(pointerToAction)
@@ -14,11 +17,11 @@ WCSimPrimaryGeneratorMessenger::WCSimPrimaryGeneratorMessenger(WCSimPrimaryGener
   genCmd = new G4UIcmdWithAString("/mygen/generator",this);
   genCmd->SetGuidance("Select primary generator.");
   //T. Akiri: Addition of laser
-  genCmd->SetGuidance(" Available generators : muline, gun, laser, gps, beam");
+  genCmd->SetGuidance("Select generator type: muline, gun, laser, gps, beam, AmBe");
   genCmd->SetParameterName("generator",true);
   genCmd->SetDefaultValue("beam");	// previously muline
   //T. Akiri: Addition of laser
-  genCmd->SetCandidates("muline gun laser gps beam");
+  genCmd->SetCandidates("muline gun laser gps beam AmBe");
 
   fileNameCmd = new G4UIcmdWithAString("/mygen/vecfile",this);
   fileNameCmd->SetGuidance("Select the file of vectors.");
@@ -40,6 +43,19 @@ WCSimPrimaryGeneratorMessenger::WCSimPrimaryGeneratorMessenger(WCSimPrimaryGener
   primariesStartEventCmd->SetGuidance("The starting entry number for reading primaries");
   primariesStartEventCmd->SetParameterName("primariesoffset",true);
   primariesStartEventCmd->SetDefaultValue(0);
+
+  // For AmBe sim
+  ambeFileCmd = new G4UIcmdWithAString("/mygen/AmBefile", this);
+  ambeFileCmd->SetGuidance("Set the input ROOT file for the AmBe external primary generator.");
+  ambeFileCmd->SetParameterName("AmBefile", false);
+  ambeFileCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
+
+  ambeOffsetCmd = new G4UIcmdWith3VectorAndUnit("/mygen/ambeoffset", this);
+  ambeOffsetCmd->SetGuidance("Set the translation offset for AmBe input positions.");
+  ambeOffsetCmd->SetGuidance("This shifts the ROOT-file particle vertices into detector coordinates.");
+  ambeOffsetCmd->SetParameterName("X", "Y", "Z", false);
+  ambeOffsetCmd->SetDefaultUnit("cm");
+  ambeOffsetCmd->AvailableForStates(G4State_PreInit, G4State_Idle);
 }
 
 WCSimPrimaryGeneratorMessenger::~WCSimPrimaryGeneratorMessenger()
@@ -50,6 +66,8 @@ WCSimPrimaryGeneratorMessenger::~WCSimPrimaryGeneratorMessenger()
   delete neutrinosfileDirectoryCmd;
   delete mydetDirectory;
   delete primariesStartEventCmd;
+  delete ambeFileCmd;
+  delete ambeOffsetCmd;
 }
 
 void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String newValue)
@@ -64,6 +82,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(false);
       myAction->SetBeamEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
+      myAction->SetAmBeRootGenerator(false);
     }
     else if ( newValue == "gun")
     {
@@ -73,6 +92,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(false);
       myAction->SetBeamEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
+      myAction->SetAmBeRootGenerator(false);
     }
     else if ( newValue == "laser")   //T. Akiri: Addition of laser
     {
@@ -82,6 +102,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(true);
       myAction->SetBeamEvtGenerator(false);
       myAction->SetGPSEvtGenerator(false);
+      myAction->SetAmBeRootGenerator(false);
     }
     else if ( newValue == "beam")
     {
@@ -91,6 +112,7 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(false);
       myAction->SetBeamEvtGenerator(true);
       myAction->SetGPSEvtGenerator(false);
+      myAction->SetAmBeRootGenerator(false);
     }
     else if ( newValue == "gps")
     {
@@ -100,6 +122,16 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
       myAction->SetLaserEvtGenerator(false);
       myAction->SetBeamEvtGenerator(false);
       myAction->SetGPSEvtGenerator(true);
+      myAction->SetAmBeRootGenerator(false);
+    }
+    else if (newValue == "AmBe") {
+      myAction->SetAmBeRootGenerator(true);
+      myAction->SetMulineEvtGenerator(false);
+      myAction->SetGunEvtGenerator(false);
+      myAction->SetLaserEvtGenerator(false);
+      myAction->SetGPSEvtGenerator(false);
+      myAction->SetBeamEvtGenerator(false);
+      G4cout << "Primary generator set to external AmBe ROOT input." << G4endl;
     }
   }
 
@@ -128,6 +160,26 @@ void WCSimPrimaryGeneratorMessenger::SetNewValue(G4UIcommand * command,G4String 
     G4cout << "Primary files will be read starting from entry "<<newValue << G4endl;
   }
 
+  if (command == ambeFileCmd) {
+    myAction->SetAmBeInputFileName(newValue);
+
+    if (!myAction->OpenAmBePrimaryFile(newValue)) {
+      G4cerr << "Failed to open AmBe input ROOT file: " << newValue << G4endl;
+    }
+    else {
+      G4cout << "Configured AmBe input ROOT file: " << newValue << G4endl;
+    }
+  }
+
+  if (command == ambeOffsetCmd) {
+    G4ThreeVector offset = ambeOffsetCmd->GetNew3VectorValue(newValue);
+    myAction->SetAmBePositionOffset(offset);
+    G4cout << "Set AmBe position offset to "
+       << offset.x()/cm << " "
+       << offset.y()/cm << " "
+       << offset.z()/cm << " cm"
+       << G4endl;
+  }
 }
 
 G4String WCSimPrimaryGeneratorMessenger::GetCurrentValue(G4UIcommand* command)
@@ -146,6 +198,8 @@ G4String WCSimPrimaryGeneratorMessenger::GetCurrentValue(G4UIcommand* command)
       { cv = "beam"; }
     else if(myAction->IsUsingGPSEvtGenerator())
       { cv = "gps"; }
+    else if(myAction->IsUsingAmBeRootGenerator())
+      { cv = "AmBe"; }
   }
   
   return cv;

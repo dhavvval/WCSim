@@ -183,6 +183,7 @@ public:
     int i, j;
     float index_time,index_timepresmear,index_pe;
     int index_primaryparentid;
+    int index_directparentid;
     std::vector<int> index_digicomp;
     bool sort_digi_compositions = (fDigiComp.size()==time.size());
     // SortDigiMapsByHitTime is called by WCSimWCDigitizerSKI::DigitizeHits to sort the WCRawPMTSignalCollection.
@@ -196,12 +197,14 @@ public:
         index_pe = pe.at(i);
         if(sort_digi_compositions) index_digicomp = fDigiComp.at(i);
         index_primaryparentid = primaryParentID.at(i);
+        index_directparentid = directParentID.at(i);
         for (j = i; j > 0 && time.at(j-1) > index_time; j--) {
           time.at(j) = time.at(j-1);
           time_presmear.at(j) = time_presmear.at(j-1);
           pe.at(j) = pe.at(j-1);
           if(sort_digi_compositions) fDigiComp.at(j) = fDigiComp.at(j-1);
           primaryParentID.at(j) = primaryParentID.at(j-1);
+          directParentID.at(j) = directParentID.at(j-1);
           //G4cout <<"swapping "<<time[j-1]<<" "<<index_time<<G4endl;
         }
         time.at(j) = index_time;
@@ -209,6 +212,7 @@ public:
         pe.at(j) = index_pe;
         if(sort_digi_compositions) fDigiComp.at(j) = index_digicomp;
         primaryParentID.at(j) = index_primaryparentid;
+        directParentID.at(j) = index_directparentid;
       }
   }
   

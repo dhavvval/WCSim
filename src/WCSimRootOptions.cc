@@ -3,6 +3,7 @@
 #include "TObject.h"
 #include <iostream>
 #include <stdlib.h>
+#include <cstdio>
 #include <cassert>
 #include <fstream>
 
@@ -57,16 +58,18 @@ void WCSimRootOptions::PopulateFileVersion()
   command = std::string("WCSIMDIR='")+std::string(WCSIMDIR)+"' && "
        " nfields=$(cat ${WCSIMDIR}/.git/HEAD | awk '{ print NF; }'); "
        " if [ $nfields -eq 2 ]; then "
-       "    cat ${WCSIMDIR}/.git/$(cat ${WCSIMDIR}/.git/HEAD | awk '{ print $NF; }') > CommitHash.txt;"
+       "    cat ${WCSIMDIR}/.git/$(cat ${WCSIMDIR}/.git/HEAD | awk '{ print $NF; }') > CommitHash.tmp;"
        " else "
-       "    cat ${WCSIMDIR}/.git/HEAD > CommitHash.txt;"
+       "    cat ${WCSIMDIR}/.git/HEAD > CommitHash.tmp;"
        " fi";
   int gothash = system(command.c_str());
   // system call returns 0 if this worked and an error code otherwise.
+  // The hash goes to a temporary file first, so a failed lookup does not
+  // truncate the CommitHash.txt left by the build or shipped with a tarball.
   if(gothash==0){
     std::cout<<"Retrieved HEAD commit hash"<<std::endl;
     // read it in
-    fin.open("CommitHash.txt");
+    fin.open("CommitHash.tmp");
     if(fin.is_open()){
       std::string tempstring="";
       std::getline(fin,tempstring);
@@ -82,15 +85,41 @@ void WCSimRootOptions::PopulateFileVersion()
   } else {
     std::cerr<<"failed to get git commit hash!"<<std::endl;
   }
+  if(CommitHash!="") rename("CommitHash.tmp", "CommitHash.txt");
+  else remove("CommitHash.tmp");
+  
+  // Without the source repository (e.g. a grid job running from a tarball),
+  // fall back to the CommitHash.txt in the run directory.
+  bool from_repository = (CommitHash!="");
+  if(!from_repository){
+    fin.open("CommitHash.txt");
+    if(fin.is_open()){
+      std::string tempstring="";
+      std::getline(fin,tempstring);
+      if(tempstring!=""){
+        CommitHash=tempstring;
+        std::cout<<"Using the commit hash recorded in CommitHash.txt"<<std::endl;
+      }
+      fin.close();
+    }
+  }
   
   if(CommitHash!=""){
     std::cout<<"Current WCSim commit hash is: "<<CommitHash<<std::endl;
   } else {
-    std::cerr<<"Unable to read WCSim commit hash, continuing anyway"<<std::endl;
+    std::cerr<<"Unable to read WCSim commit hash\n"
+             <<"Please ensure you built WCSim from a git repository"<<std::endl;
+    //       <<"If working on the grid fetch the minimum code with e.g.\n"
+    //       <<"`git clone --depth 1 --single-branch -b annie https://github.com/ANNIEsoft/WCSim.git`"<<std::endl;
+    // Hmm, this could cause grid jobs to fail if someone got their code as a zip file,
+    // but if you're running on the grid it's probably all the more important your outputs
+    // are properly git tagged. So we will fail.
+    assert(false);
   }
   
   // we can also warn if there are any outstanding changes, as in this case
   // the corresponding commit may not be an accurate representation of the code
+  if(!from_repository) return;
   command = std::string("(WCSIMDIR='") + std::string(WCSIMDIR) + "' && "
             " cd ${WCSIMDIR}/ && rm -f gitstatusstring.txt && "
             " git diff HEAD > gitstatusstring.txt && "

@@ -1317,7 +1317,7 @@ void WCSimEventAction::ForceSaveHitAncestry(G4TrajectoryContainer* TC,
            << WCDC_hits->entries() << " PMT digits; "
            << nNewlySaved << " newly marked for saving, "
            << visited.size() << " visited" << G4endl;
-    if (referenced.empty())
+    if (referenced.empty() && WCDC_hits->entries() > 0)
       G4cout << "WCSimEventAction::ForceSaveHitAncestry: WARNING - no direct parent IDs "
              << "on the raw PMT digits. Save-on-demand is having no effect." << G4endl;
     reportCount++;

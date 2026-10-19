@@ -69,10 +69,11 @@ public:
   void CreateNewOutputFile();
 
   // When true, WCSimEventAction force-saves every track that produced a detected
-  // photon, plus that track's ancestor chain, so the per-hit DirectParentID always
-  // resolves to a real track in the output. Set from the macro via
-  // /WCSimIO/SaveTracksOnDemand; default true. Turning it off reproduces the
-  // historical save behaviour, which is what the A/B comparison needs.
+  // photon, plus that track's ancestor chain, and WCSimTrackingAction also saves
+  // neutron-lineage tracks and e+/e- above 0.8 MeV from compt/conv/phot/eIoni/hIoni/ionIoni,
+  // so the per-hit DirectParentID always resolves to a real track in the output.
+  // Set from the macro via /WCSimIO/SaveTracksOnDemand; default true. False gives the
+  // previous save behaviour.
   void SetSaveTracksOnDemand(G4bool choice) { saveTracksOnDemand = choice; }
   G4bool GetSaveTracksOnDemand() const { return saveTracksOnDemand; }
 

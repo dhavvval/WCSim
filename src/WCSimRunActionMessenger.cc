@@ -24,6 +24,8 @@ WCSimRunActionMessenger::WCSimRunActionMessenger(WCSimRunAction* WCSimRA)
   SaveTracksOnDemand->SetGuidance("If true, every track referenced as the direct parent of a");
   SaveTracksOnDemand->SetGuidance("detected photon is written out along with its ancestor chain,");
   SaveTracksOnDemand->SetGuidance("so per-hit DirectParentID always resolves to a real track.");
+  SaveTracksOnDemand->SetGuidance("Also saves neutron-lineage tracks and e+/e- above 0.8 MeV");
+  SaveTracksOnDemand->SetGuidance("from compt/conv/phot/eIoni/hIoni/ionIoni.");
   SaveTracksOnDemand->SetGuidance("Set false to reproduce the historical save behaviour.");
   SaveTracksOnDemand->SetParameterName("SaveTracksOnDemand",true);
   SaveTracksOnDemand->SetDefaultValue(true);

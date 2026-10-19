@@ -8,6 +8,8 @@
 #include "G4UserEventAction.hh"
 #include "G4EventManager.hh"
 #include "WCSimTrackInformation.hh"
+#include "WCSimRunAction.hh"
+#include "G4RunManager.hh"
 #include "WCSimEventInformation.hh"
 #include "G4TransportationManager.hh"
 #include "G4SystemOfUnits.hh"
@@ -104,6 +106,11 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
     anInfo = new WCSimTrackInformation();
   }
   
+  // /WCSimIO/SaveTracksOnDemand also switches the neutron-lineage and EM/ionization saving below
+  static const WCSimRunAction* runAction =
+    dynamic_cast<const WCSimRunAction*>(G4RunManager::GetRunManager()->GetUserRunAction());
+  const G4bool saveHitAncestry = runAction ? runAction->GetSaveTracksOnDemand() : true;
+
   // get particle type and creator process
   const G4VProcess* creatorProcess = aTrack->GetCreatorProcess();
   G4int thispdg;
@@ -126,13 +133,14 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
       (ParticleList.count(aTrack->GetDefinition()->GetPDGEncoding())) ||
       (aTrack->GetDefinition()->GetPDGEncoding()==22 && aTrack->GetTotalEnergy() > 1.0*MeV) ||
       (creatorProcess->GetProcessName() == "muMinusCaptureAtRest" && aTrack->GetTotalEnergy() > 1.0*MeV)||
-      ( thispdg==22 && anInfo->GetParentPdg()==111) || anInfo->GetHasNeutronAncestor() ||
+      ( thispdg==22 && anInfo->GetParentPdg()==111) ||
+      ( saveHitAncestry && anInfo->GetHasNeutronAncestor() ) ||
       // Save Compton/pair-production/photoelectric/ionization electrons above the Cherenkov
       // threshold in water (~0.8 MeV total energy) so BackTracker's ancestor walk has a track
       // to skip to, even outside a neutron lineage (see generalize-background-traceback.md,
       // section 10). Ionization (eIoni/hIoni/ionIoni) delta rays are the largest remaining
       // untraced source -- far more numerous along any charged track than compt/conv/phot.
-      ( (thispdg==11 || thispdg==-11) && creatorProcess!=0 &&
+      ( saveHitAncestry && (thispdg==11 || thispdg==-11) && creatorProcess!=0 &&
         (creatorProcess->GetProcessName()=="compt" ||
          creatorProcess->GetProcessName()=="conv"  ||
          creatorProcess->GetProcessName()=="phot" ||
@@ -161,8 +169,8 @@ void WCSimTrackingAction::PostUserTrackingAction(const G4Track* aTrack){
         WCSimTrackInformation* infoSec = new WCSimTrackInformation(anInfo);
         infoSec->WillBeSaved(false);
         infoSec->SetParentPdg(thispdg);
-        infoSec->SetHasNeutronAncestor(anInfo->GetHasNeutronAncestor() || aTrack->GetDefinition()->GetPDGEncoding() == 2112); //
-        infoSec->SetPrimaryParentID(anInfo->GetPrimaryParentID()); // pass down primary parent ID, Do I need to set DirectParentID too? (DJA)
+        infoSec->SetHasNeutronAncestor(anInfo->GetHasNeutronAncestor() || aTrack->GetDefinition()->GetPDGEncoding() == 2112);
+        infoSec->SetPrimaryParentID(anInfo->GetPrimaryParentID()); // pass down primary parent ID
         (*secondaries)[i]->SetUserInformation(infoSec);
       }
   }

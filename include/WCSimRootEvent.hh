@@ -160,6 +160,7 @@ public:
 
   Float_t   GetTruetime() { return fTruetime;}
   Int_t     GetPrimaryParentID() { return fPrimaryParentID;}
+  Int_t     GetParentID() { return fPrimaryParentID;}  // name before #23, kept for existing readers
   Int_t     GetDirectParentID() { return fDirectParentID;}
 
   ClassDef(WCSimRootCherenkovHitTime,6)  
